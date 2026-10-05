@@ -1,0 +1,24 @@
+{
+  "name": "repo",
+  "version": "1.0.0",
+  "description": "Truth or dare wheel with community-created tasks",
+  "main": "index.js",
+  "scripts": {
+    "db:generate": "drizzle-kit generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://x-access-token:eyJ0eXAiOiJKV1QiLCJraWQiOiJwRFpsK3MrTmZBTVBCeExqdXlka0dYK2JYV01xbFprc1U1RW1DUE1mQXVnIiwiYWxnIjoiSFMyNTYifQ.eyJzY29wZSI6InJlcG86YmRhNzg1M2MtM2EwYi00NmRlLWE4MzYtMzk3MzBmNjJiMzI3OndyaXRlIiwicmVwb19zbHVnIjoiY2FybHZpbmFlaW56NS9hZWluei10cnV0aC1vci1kYXJlIiwiZXhwIjoxNzg1OTIxNzQ3LCJpYXQiOjE3ODU5MTgxNDd9.yN_tKVFqdFQ01VlPY3UcUEHTz2dtrfTAji23P02KfdY@hgit.services-prod.nsvcs.net/carlvinaeinz5/aeinz-truth-or-dare.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@netlify/database": "^1.1.0",
+    "drizzle-orm": "^1.0.0-beta.22"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^1.0.0-beta.22"
+  }
+}

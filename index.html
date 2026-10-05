@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>AEINZ Truth or Dare Wheel • Ultimate</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Fredoka+One&family=Pacifico&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    :root {
+      --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      min-height: 100vh;
+      background-attachment: fixed;
+      transition: all 0.8s var(--transition-smooth);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ============ ENHANCED LOADING SCREEN ============ */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #312e81 60%, #1a0a2e 100%);
+      background-size: 400% 400%;
+      animation: loadingBgShift 8s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    
+    @keyframes loadingBgShift {
+      0%, 100% { background-position: 0% 50%; }
+      25% { background-position: 100% 0%; }
+      50% { background-position: 100% 100%; }
+      75% { background-position: 0% 100%; }
+    }
+    
+    #loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Floating particles */
+    .loading-particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fbbf24;
+      border-radius: 50%;
+      animation: floatUp 3s ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* Main logo container */
+    .loading-logo-container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    /* Animated wheel logo */
+    .loading-wheel-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .loading-wheel-svg {
+      width: 100%;
+      height: 100%;
+      animation: spinLoader 2s linear infinite;
+      filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.5));
+    }
+
+    @keyframes spinLoader {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+      animation: pulseCenter 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseCenter {
+      0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
+      50% { box-shadow: 0 0 40px rgba(251, 191, 36, 1), 0 0 60px rgba(251, 191, 36, 0.5); }
+    }
+
+    /* Glowing ring */
+    .loading-glow-ring {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { 
+        transform: scale(0.9);
+        opacity: 0.3;
+        border-color: rgba(251, 191, 36, 0.2);
+      }
+      50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+        border-color: rgba(251, 191, 36, 0.6);
+      }
+    }
+
+    .loading-glow-ring:nth-child(2) {
+      animation-delay: 0.5s;
+      inset: -35px;
+    }
+
+    .loading-glow-ring:nth-child(3) {
+      animation-delay: 1s;
+      inset: -50px;
+    }
+
+    /* Title text */
+    .loading-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(to right, #fbbf24, #f59e0b, #fbbf24);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.15em;
+      animation: titleGlow 2s ease-in-out infinite;
+      text-shadow: none;
+      font-family: 'Fredoka One', cursive;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+
+    .loading-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* Loading bar */
+    .loading-bar-container {
+      width: 200px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .loading-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
+      background-size: 200% 100%;
+      animation: barLoad 1.5s ease-in-out infinite, barShine 2s linear infinite;
+      border-radius: 10px;
+    }
+
+    @keyframes barLoad {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes barShine {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* Corner decoration */
+    .loading-corner {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-color: rgba(251, 191, 36, 0.3);
+      border-style: solid;
+      animation: cornerPulse 3s ease-in-out infinite;
+    }
+
+    .loading-corner.top-left {
+      top: 30px;
+      left: 30px;
+      border-width: 2px 0 0 2px;
+      border-radius: 10px 0 0 0;
+    }
+
+    .loading-corner.top-right {
+      top: 30px;
+      right: 30px;
+      border-width: 2px 2px 0 0;
+      border-radius: 0 10px 0 0;
+    }
+
+    .loading-corner.bottom-left {
+      bottom: 30px;
+      left: 30px;
+      border-width: 0 0 2px 2px;
+      border-radius: 0 0 0 10px;
+    }
+
+    .loading-corner.bottom-right {
+      bottom: 30px;
+      right: 30px;
+      border-width: 0 2px 2px 0;
+      border-radius: 0 0 10px 0;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { border-color: rgba(251, 191, 36, 0.2); }
+      50% { border-color: rgba(251, 191, 36, 0.6); }
+    }
+
+    /* ============ MAIN APP STYLES ============ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+    /* Theme styles */
+    body.child-theme {
+      background: linear-gradient(135deg, #fff9c4 0%, #b3e5fc 25%, #c8e6c9 50%, #ffe0b2 75%, #f8bbd0 100%);
+      background-size: 400% 400%;
+      animation: childBg 15s ease infinite;
+    }
+    
+    @keyframes childBg {
+      0%,100%{background-position:0% 50%}
+      25%{background-position:100% 0%}
+      50%{background-position:100% 100%}
+      75%{background-position:0% 100%}
+    }
+
+    body.child-theme .frost-panel {
+      background: rgba(255,255,255,0.75) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(255,183,77,0.5) !important;
+      box-shadow: 0 8px 32px rgba(255,152,0,0.15);
+    }
+
+    body.child-theme .text-gradient {
+      background: linear-gradient(to right, #ff6f00, #ff8f00, #ffa000, #ff6f00) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-family: 'Fredoka One', cursive !important;
+    }
+
+    body.child-theme #subtitle { 
+      color: #e65100 !important; 
+      font-family: 'Fredoka One', cursive !important;
+      -webkit-text-fill-color: #e65100 !important;
+    }
+
+    body.pleasing-theme {
+      background: linear-gradient(135deg, #e8eaf6 0%, #b2dfdb 25%, #c8e6c9 50%, #b3e5fc 75%, #e1bee7 100%);
+      background-size: 400% 400%; 
+      animation: pleasingBg 18s ease infinite;
+    }
+    
+    @keyframes pleasingBg { 
+      0%,100%{background-position:0% 50%}
+      25%{background-position:100% 0%}
+      50%{background-position:100% 100%}
+      75%{background-position:0% 100%} 
+    }
+
+    body.pleasing-theme .frost-panel { 
+      background: rgba(255,255,255,0.8) !important; 
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(0,150,136,0.4) !important; 
+    }
+    
+    body.pleasing-theme .text-gradient { 
+      background: linear-gradient(to right, #00695c, #00897b, #26a69a, #00695c) !important; 
+      -webkit-background-clip: text !important; 
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      font-family: 'Playfair Display', serif !important; 
+    }
+    
+    body.pleasing-theme #subtitle { 
+      color: #004d40 !important; 
+      font-family: 'Playfair Display', serif !important;
+      -webkit-text-fill-color: #004d40 !important;
+    }
+
+    body.dirty-theme {
+      background: linear-gradient(135deg, #1a0a0a 0%, #2d0a1a 25%, #1a0a2e 50%, #2d0a0a 75%, #1a0a1a 100%);
+      background-size: 400% 400%; 
+      animation: dirtyBgPulse 10s ease infinite;
+    }
+    
+    @keyframes dirtyBgPulse { 
+      0%,100%{background-position:0% 50%}
+      25%{background-position:100% 0%}
+      50%{background-position:100% 100%}
+      75%{background-position:0% 100%} 
+    }
+    
+    body.dirty-theme .frost-panel { 
+      background: rgba(255,200,200,0.08) !important; 
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,100,100,0.3) !important; 
+    }
+    
+    body.dirty-theme .text-gradient { 
+      background: linear-gradient(to right, #ff6b8a, #ff3d5c, #ff1744, #ff6b8a) !important; 
+      -webkit-background-clip: text !important; 
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    
+    body.dirty-theme #subtitle { 
+      color: #ffb3c6 !important;
+      -webkit-text-fill-color: #ffb3c6 !important;
+    }
+
+    /* Utility classes */
+    .frost-panel {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 1.5rem;
+      padding: 1.25rem;
+    }
+
+    .scale-in {
+      animation: scaleIn 0.4s var(--transition-spring);
+    }
+    
+    @keyframes scaleIn { 
+      from { opacity:0; transform:scale(0.8); } 
+      to { opacity:1; transform:scale(1); } 
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 200;
+      background: rgba(0,0,0,0.95);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: toastIn 0.4s ease, toastOut 0.4s ease 2.6s forwards;
+      backdrop-filter: blur(10px);
+    }
+    
+    @keyframes toastIn { 
+      from { opacity:0; transform:translateX(100px); } 
+      to { opacity:1; transform:translateX(0); } 
+    }
+    
+    @keyframes toastOut { 
+      from { opacity:1; transform:translateX(0); } 
+      to { opacity:0; transform:translateX(100px); } 
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(49,46,129,0.98));
+      border: 2px solid rgba(251,191,36,0.6);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 60px rgba(251,191,36,0.4), 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .emoji-option {
+      width: 44px;
+      height: 44px;
+      font-size: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .emoji-option:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.1);
+    }
+
+    .emoji-option.selected {
+      background: rgba(251,191,36,0.3);
+      border-color: #fbbf24;
+      box-shadow: 0 0 15px rgba(251,191,36,0.5);
+    }
+
+    /* Enhanced History Styles */
+    .history-item {
+      background: rgba(255,255,255,0.12) !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3) !important;
+      color: #ffffff !important;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-item .player-name {
+      color: #fbbf24 !important;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .history-item .task-text {
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 1 !important;
+    }
+
+    .history-item .timestamp {
+      color: rgba(255,255,255,0.8) !important;
+      font-weight: 500;
+    }
+
+    .history-item .level-badge {
+      background: rgba(251,191,36,0.3) !important;
+      color: #fff !important;
+      font-weight: 700;
+      border: 1px solid rgba(251,191,36,0.5);
+    }
+
+    /* Spin button pulse */
+    #spin-btn:not(:disabled) {
+      animation: spinPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes spinPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,0.4); }
+      50% { box-shadow: 0 0 40px rgba(251,191,36,0.8), 0 0 60px rgba(251,191,36,0.4); }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+      .frost-panel {
+        padding: 1rem;
+        border-radius: 1.25rem;
+      }
+      
+      .modal-content {
+        margin: 0.5rem;
+        padding: 1.25rem;
+      }
+      
+      .emoji-option {
+        width: 38px;
+        height: 38px;
+        font-size: 1.25rem;
+      }
+
+      .loading-title {
+        font-size: 2rem;
+      }
+
+      .loading-wheel-wrapper {
+        width: 100px;
+        height: 100px;
+      }
+
+      .history-item .player-name {
+        font-size: 1rem;
+      }
+      
+      .history-item .task-text {
+        font-size: 0.9rem;
+      }
+    }
+
+    .text-shadow {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Achievement glow */
+    #achievement-popup {
+      animation: achievementGlow 0.5s ease-out;
+    }
+
+    @keyframes achievementGlow {
+      from {
+        box-shadow: 0 0 0 rgba(251,191,36,0);
+      }
+      to {
+        box-shadow: 0 0 30px rgba(251,191,36,0.5);
+      }
+    }
+  </style>
+</head>
+<body class="w-full min-h-screen relative text-white child-theme" id="main-body">
+
+  <!-- ============ LOADING SCREEN WITH IMAGE ============ -->
+  <div id="loading-screen">
+    <!-- Floating particles -->
+    <div class="loading-particles" id="particles-container"></div>
+
+    <!-- Corner decorations -->
+    <div class="loading-corner top-left"></div>
+    <div class="loading-corner top-right"></div>
+    <div class="loading-corner bottom-left"></div>
+    <div class="loading-corner bottom-right"></div>
+
+    <!-- Main logo container -->
+    <div class="loading-logo-container">
+      <!-- Animated Wheel SVG -->
+      <div class="loading-wheel-wrapper">
+        <!-- Glow rings -->
+        <div class="loading-glow-ring"></div>
+        <div class="loading-glow-ring"></div>
+        <div class="loading-glow-ring"></div>
+        
+        <!-- SVG Wheel -->
+        <svg class="loading-wheel-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer ring -->
+          <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(251,191,36,0.3)" stroke-width="4"/>
+          
+          <!-- Wheel segments -->
+          <g>
+            <!-- Segment 1 -->
+            <path d="M100,100 L100,5 A95,95 0 0,1 167.17,32.83 Z" fill="#FF8F00" opacity="0.8"/>
+            <!-- Segment 2 -->
+            <path d="M100,100 L167.17,32.83 A95,95 0 0,1 195,100 Z" fill="#FFA000" opacity="0.8"/>
+            <!-- Segment 3 -->
+            <path d="M100,100 L195,100 A95,95 0 0,1 167.17,167.17 Z" fill="#FFB300" opacity="0.8"/>
+            <!-- Segment 4 -->
+            <path d="M100,100 L167.17,167.17 A95,95 0 0,1 100,195 Z" fill="#FFC107" opacity="0.8"/>
+            <!-- Segment 5 -->
+            <path d="M100,100 L100,195 A95,95 0 0,1 32.83,167.17 Z" fill="#FFD54F" opacity="0.8"/>
+            <!-- Segment 6 -->
+            <path d="M100,100 L32.83,167.17 A95,95 0 0,1 5,100 Z" fill="#FFAB00" opacity="0.8"/>
+            <!-- Segment 7 -->
+            <path d="M100,100 L5,100 A95,95 0 0,1 32.83,32.83 Z" fill="#FF6F00" opacity="0.8"/>
+            <!-- Segment 8 -->
+            <path d="M100,100 L32.83,32.83 A95,95 0 0,1 100,5 Z" fill="#FFE57F" opacity="0.8"/>
+          </g>
+          
+          <!-- Inner circle -->
+          <circle cx="100" cy="100" r="20" fill="white" stroke="#fbbf24" stroke-width="3"/>
+          
+          <!-- Center star -->
+          <text x="100" y="106" text-anchor="middle" font-size="18" fill="#f59e0b">🎯</text>
+        </svg>
+        
+        <!-- Center dot overlay -->
+        <div class="loading-wheel-center">🎯</div>
+      </div>
+
+      <!-- Title -->
+      <div class="loading-title">AEINZ</div>
+      
+      <!-- Subtitle -->
+      <div class="loading-subtitle">TRUTH OR DARE</div>
+      
+      <!-- Loading bar -->
+      <div class="loading-bar-container">
+        <div class="loading-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <main class="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+    
+    <!-- Active Level Badge -->
+    <div class="flex justify-center mb-4 sm:mb-6">
+      <div id="active-level-display" class="rounded-full px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-bold flex items-center gap-2 shadow-xl" style="background: linear-gradient(135deg, #ff8f00, #ffa000); color: #fff; font-family: 'Fredoka One', cursive;">
+        <span id="active-level-icon">🧸</span>
+        <span id="active-level-text" class="uppercase tracking-wider">CHILD'S PLAY</span>
+        <span class="inline-block w-2 h-2 bg-white rounded-full animate-pulse"></span>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6">
+      <div class="frost-panel text-center">
+        <div class="text-xl sm:text-2xl mb-1">🎯</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="total-spins">0</div>
+        <div class="text-xs opacity-70">Spins</div>
+      </div>
+      <div class="frost-panel text-center">
+        <div class="text-xl sm:text-2xl mb-1">✅</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="completed-tasks">0</div>
+        <div class="text-xs opacity-70">Done</div>
+      </div>
+      <div class="frost-panel text-center">
+        <div class="text-xl sm:text-2xl mb-1">🔥</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="streak-count">0</div>
+        <div class="text-xs opacity-70">Streak</div>
+      </div>
+      <div class="frost-panel text-center">
+        <div class="text-xl sm:text-2xl mb-1">👥</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="player-count-dash">5</div>
+        <div class="text-xs opacity-70">Players</div>
+      </div>
+    </div>
+
+    <!-- Controls Row -->
+    <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="timer-duration" class="frost-panel rounded-full px-3 py-2 text-sm bg-transparent border-none outline-none cursor-pointer" style="color: inherit;">
+          <option value="off" class="bg-gray-800 text-white">⏱️ Off</option>
+          <option value="15" class="bg-gray-800 text-white">15s</option>
+          <option value="30" selected class="bg-gray-800 text-white">30s</option>
+          <option value="60" class="bg-gray-800 text-white">60s</option>
+        </select>
+        <button id="timer-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm flex items-center gap-1 hover:bg-white/20 transition">
+          <span>⏱️</span> Timer
+        </button>
+        <button id="wildcard-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm flex items-center gap-1 hover:bg-white/20 transition">
+          <span>🃏</span> Wild
+        </button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="add-task-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
+          <span>➕</span> Task
+        </button>
+        <button id="history-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">📋</button>
+        <button id="sound-toggle" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">🔊</button>
+      </div>
+    </div>
+
+    <!-- Level Selector -->
+    <div class="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
+      <button data-level="child" class="level-btn active px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-bold bg-white/10 hover:bg-white/20 transition flex items-center gap-2 border-2 border-transparent">
+        🧸 Child
+      </button>
+      <button data-level="pleasing" class="level-btn px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-bold bg-white/10 hover:bg-white/20 transition flex items-center gap-2 border-2 border-transparent">
+        😇 Pleasing
+      </button>
+      <button data-level="dirty" class="level-btn px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-bold bg-white/10 hover:bg-white/20 transition flex items-center gap-2 border-2 border-transparent">
+        🌶️ Dirty <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full ml-1">18+</span>
+      </button>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start justify-center">
+      
+      <!-- Left Column -->
+      <div class="w-full lg:w-1/2 flex flex-col gap-4 sm:gap-6">
+        <div class="text-center lg:text-left">
+          <h1 class="text-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight">
+            AEINZ
+          </h1>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-black mt-1 opacity-90 text-shadow">
+            TRUTH OR DARE
+          </h2>
+          <p id="subtitle" class="text-lg sm:text-xl mt-2 font-semibold flex items-center justify-center lg:justify-start gap-2">
+            <span>🎪</span> Spin & Surrender <span>🎪</span>
+          </p>
+        </div>
+
+        <!-- Player Input -->
+        <div class="frost-panel">
+          <form id="add-form" class="flex gap-2">
+            <input id="item-input" type="text" placeholder="Add player name..." 
+                   class="flex-1 rounded-full px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition text-sm sm:text-base"
+                   style="color: inherit;">
+            <button type="button" id="emoji-btn" 
+                    class="rounded-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 hover:bg-white/20 transition text-lg sm:text-xl"
+                    title="Pick emoji">😊</button>
+            <button type="submit" 
+                    class="rounded-full px-4 sm:px-5 py-2.5 sm:py-3 font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-black hover:scale-105 transition text-sm sm:text-base"
+                    id="add-btn">
+              Add
+            </button>
+          </form>
+          
+          <div id="chips" class="flex flex-wrap gap-2 mt-4 min-h-[40px]"></div>
+          
+          <div class="flex justify-between items-center mt-3 text-xs sm:text-sm">
+            <span class="opacity-70" id="player-count">5 players</span>
+            <div class="flex gap-2">
+              <button id="shuffle-btn" class="rounded-full px-3 py-1.5 bg-white/10 hover:bg-white/20 transition text-xs sm:text-sm">
+                🔀 Shuffle
+              </button>
+              <button id="clear-btn" class="rounded-full px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 transition text-xs sm:text-sm border border-red-400/40">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keyboard Tips -->
+        <div class="frost-panel">
+          <div class="flex items-center gap-2 mb-2 text-sm font-bold">
+            <span>💡</span> Quick Tips
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs opacity-80">
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white/10 rounded text-xs">Space</kbd>
+              <span>Spin</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white/10 rounded text-xs">R</kbd>
+              <span>Re-roll</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white/10 rounded text-xs">D</kbd>
+              <span>Double</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white/10 rounded text-xs">Enter</kbd>
+              <span>Add</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Wheel & Result -->
+      <div class="w-full lg:w-1/2 flex flex-col items-center gap-4 sm:gap-6">
+        
+        <!-- Wheel Container -->
+        <div class="relative flex justify-center w-full">
+          <div class="relative inline-block">
+            <!-- Pointer -->
+            <div id="wheel-pointer" style="
+              position: absolute;
+              top: -15px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0;
+              height: 0;
+              border-left: 14px solid transparent;
+              border-right: 14px solid transparent;
+              border-top: 20px solid #fbbf24;
+              z-index: 20;
+              filter: drop-shadow(0 0 8px rgba(251,191,36,0.6));
+            "></div>
+            
+            <!-- Canvas -->
+            <canvas id="wheel-canvas" width="600" height="600" 
+                    class="rounded-full shadow-2xl" 
+                    style="width: min(320px, 80vw); height: min(320px, 80vw); box-shadow: 0 0 60px rgba(251,191,36,0.3);">
+            </canvas>
+            
+            <!-- Center dot -->
+            <div id="wheel-center" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl z-10 border-4 border-amber-500 flex items-center justify-center text-lg">
+              🎯
+            </div>
+          </div>
+        </div>
+
+        <!-- Spin Button -->
+        <button id="spin-btn" 
+                class="rounded-full px-10 sm:px-14 py-3 sm:py-4 text-xl sm:text-2xl font-black shadow-2xl hover:scale-105 active:scale-95 transition disabled:opacity-40 disabled:hover:scale-100 disabled:animation-none flex items-center gap-2"
+                style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e1b4b;">
+          🔄 SPIN!
+        </button>
+
+        <!-- Result Area -->
+        <div id="result-area" class="frost-panel w-full text-center hidden">
+          <div id="timer-bar-container" class="hidden mb-2">
+            <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+              <div id="timer-bar" class="h-full bg-amber-500 rounded-full transition-all duration-1000" style="width: 100%;"></div>
+            </div>
+            <div class="text-xs mt-1 opacity-70">Time remaining</div>
+          </div>
+          
+          <p class="text-sm uppercase tracking-widest font-bold opacity-80">🎯 Selected Player</p>
+          <p id="winner-name" class="text-2xl sm:text-3xl md:text-4xl font-black mt-1 mb-3 text-shadow"></p>
+          
+          <div class="flex justify-center mb-3">
+            <span id="task-type-badge" class="px-4 py-1.5 rounded-full text-sm font-bold"></span>
+          </div>
+          
+          <div class="task-card rounded-xl p-4 bg-white/5 border border-white/20">
+            <div class="flex items-start gap-3">
+              <span id="task-icon" class="text-2xl sm:text-3xl">🎲</span>
+              <div class="flex-1 text-left">
+                <p id="task-text" class="text-base sm:text-lg md:text-xl font-bold leading-relaxed"></p>
+                <div class="flex justify-between items-center mt-3 flex-wrap gap-2">
+                  <span id="level-indicator" class="text-xs px-2 py-1 rounded-full bg-white/10 border border-white/30 uppercase"></span>
+                  <div class="flex gap-1.5">
+                    <button id="mark-done-btn" class="text-xs bg-green-500/20 hover:bg-green-500/30 border border-green-400/40 rounded-full px-3 py-1.5 transition">
+                      ✅ Done
+                    </button>
+                    <button id="double-or-nothing-btn" class="text-xs bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/40 rounded-full px-3 py-1.5 transition">
+                      🎲 Double
+                    </button>
+                    <button id="reroll-btn" class="text-xs bg-white/10 hover:bg-white/20 border border-white/30 rounded-full px-3 py-1.5 transition">
+                      🔁 Re-roll
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievement Popup -->
+        <div id="achievement-popup" class="frost-panel w-full text-center hidden">
+          <div class="text-3xl">🏆</div>
+          <p class="font-bold text-lg mt-1" id="achievement-text">Achievement Unlocked!</p>
+          <p class="text-sm opacity-70" id="achievement-desc"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <div id="history-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl sm:text-2xl font-bold text-white">📋 Spin History</h3>
+        <button id="close-history" class="text-2xl text-white hover:text-white/70 transition">&times;</button>
+      </div>
+      <div id="full-history-list" class="space-y-2 max-h-60 sm:max-h-80 overflow-y-auto mb-4"></div>
+      <button id="export-history" class="w-full rounded-full px-5 py-2.5 font-bold bg-amber-500/20 border border-amber-400/40 hover:bg-amber-500/30 transition text-sm text-white">
+        📥 Export History
+      </button>
+    </div>
+  </div>
+
+  <div id="task-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="flex justify-between items-start gap-4 mb-5">
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-amber-400">Add a Community Task</h3>
+          <p class="text-sm text-white/70 mt-1">Your task becomes available to everyone playing.</p>
+        </div>
+        <button id="close-task-modal" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close task form">&times;</button>
+      </div>
+      <form id="task-form" class="space-y-4">
+        <div>
+          <label for="task-prompt" class="block text-sm font-bold text-white mb-2">Task</label>
+          <textarea id="task-prompt" maxlength="240" required rows="4" placeholder="Write a fun truth question or dare..." class="w-full rounded-2xl px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition resize-none"></textarea>
+          <div class="flex justify-between mt-1 text-xs text-white/60">
+            <span>Keep it clear, safe, and fun.</span>
+            <span id="task-character-count">0 / 240</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="task-type" class="block text-sm font-bold text-white mb-2">Type</label>
+            <select id="task-type" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400">
+              <option value="truth" class="bg-gray-800">💬 Truth</option>
+              <option value="dare" class="bg-gray-800">⚡ Dare</option>
+            </select>
+          </div>
+          <div>
+            <label for="task-level" class="block text-sm font-bold text-white mb-2">Level</label>
+            <select id="task-level" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400">
+              <option value="child" class="bg-gray-800">🧸 Child</option>
+              <option value="pleasing" class="bg-gray-800">😇 Pleasing</option>
+              <option value="dirty" class="bg-gray-800">🌶️ Dirty 18+</option>
+            </select>
+          </div>
+        </div>
+        <p id="task-form-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2" role="alert"></p>
+        <button id="save-task-btn" type="submit" class="w-full rounded-full px-6 py-3 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition disabled:opacity-60 disabled:hover:scale-100">
+          Add to the Game
+        </button>
+      </form>
+      <p id="community-task-count" class="text-center text-xs text-white/60 mt-4">Loading community tasks...</p>
+    </div>
+  </div>
+
+  <div id="emoji-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 class="text-xl sm:text-2xl font-bold mb-4 text-white">Pick Your Emoji</h3>
+      <div id="emoji-grid" class="flex flex-wrap gap-2 justify-center mb-4"></div>
+      <div class="flex gap-3 justify-center">
+        <button id="emoji-confirm" class="rounded-full px-5 py-2 font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-black hover:scale-105 transition">Confirm</button>
+        <button id="emoji-cancel" class="rounded-full px-5 py-2 font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bonus-modal" class="modal-overlay hidden">
+    <div class="modal-content text-center">
+      <h3 class="text-2xl sm:text-3xl font-black text-purple-400 mb-2">🌟 BONUS ROUND! 🌟</h3>
+      <p class="opacity-80 mb-3 text-white">5 spins completed! Answer this:</p>
+      <p id="bonus-question" class="text-xl sm:text-2xl font-bold text-amber-300 mb-5"></p>
+      <button id="bonus-answer" class="rounded-full px-6 py-2.5 font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:scale-105 transition">
+        Reveal Answer
+      </button>
+    </div>
+  </div>
+
+  <div id="double-modal" class="modal-overlay hidden">
+    <div class="modal-content text-center">
+      <h3 class="text-2xl sm:text-3xl font-black text-amber-400 mb-2">🎰 Double or Nothing!</h3>
+      <p class="opacity-80 mb-3 text-white">Complete this extra dare to <span class="text-green-400 font-bold">DOUBLE</span> your streak!</p>
+      <p id="double-task" class="text-lg sm:text-xl font-bold text-amber-300 mb-5"></p>
+      <div class="flex gap-3 justify-center flex-wrap">
+        <button id="double-accept" class="rounded-full px-5 py-2 font-bold bg-green-500 hover:bg-green-400 text-black transition">I'll Do It!</button>
+        <button id="double-decline" class="rounded-full px-5 py-2 font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white">No Thanks</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="penalty-modal" class="modal-overlay hidden">
+    <div class="modal-content text-center">
+      <h3 class="text-2xl sm:text-3xl font-black text-red-400 mb-2">😈 Penalty Time!</h3>
+      <p class="opacity-80 mb-3 text-white">You refused or failed! Your penalty:</p>
+      <p id="penalty-text" class="text-lg sm:text-xl font-bold text-amber-300 mb-5"></p>
+      <button id="penalty-accept" class="rounded-full px-6 py-2.5 font-bold bg-red-500 hover:bg-red-400 text-white transition">
+        Okay, I'll Do It 😅
+      </button>
+    </div>
+  </div>
+
+  <footer class="relative z-10 text-center py-6 px-4 text-sm opacity-70">
+    <p>&copy; 2026 <strong>C.AEINZ.ORG.UG</strong> / MADE by <strong>Aeinz the DESID</strong></p>
+  </footer>
+
+  <script>
+    (function() {
+      // ----- LOADING SCREEN PARTICLES -----
+      function createParticles() {
+        const container = document.getElementById('particles-container');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.style.left = Math.random() * 100 + '%';
+          particle.style.animationDelay = Math.random() * 3 + 's';
+          particle.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          particle.style.width = (Math.random() * 4 + 2) + 'px';
+          particle.style.height = particle.style.width;
+          
+          // Random warm colors
+          const colors = ['#fbbf24', '#f59e0b', '#ff8f00', '#ffa000', '#ffb300', '#ffd54f'];
+          particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+          
+          container.appendChild(particle);
+        }
+      }
+      
+      createParticles();
+
+      // ----- SOUND EFFECTS -----
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let audioCtx;
+      
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new AudioContext();
+        }
+      }
+      
+      function playSound(frequency, duration, type = 'sine', volume = 0.1) {
+        if (!soundEnabled || !audioCtx) return;
+        
+        try {
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          oscillator.type = type;
+          oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+          gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          
+          oscillator.start(audioCtx.currentTime);
+          oscillator.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+          // Silently fail if audio context not ready
+        }
+      }
+      
+      function playClickSound() {
+        playSound(800, 0.1, 'sine', 0.08);
+      }
+      
+      function playSpinSound() {
+        playSound(400, 0.3, 'triangle', 0.05);
+      }
+      
+      function playWinSound() {
+        playSound(600, 0.15, 'sine', 0.12);
+        setTimeout(() => playSound(800, 0.15, 'sine', 0.12), 150);
+        setTimeout(() => playSound(1000, 0.2, 'sine', 0.12), 300);
+      }
+      
+      function playAchievementSound() {
+        playSound(500, 0.1, 'square', 0.08);
+        setTimeout(() => playSound(700, 0.1, 'square', 0.08), 100);
+        setTimeout(() => playSound(900, 0.15, 'square', 0.08), 200);
+        setTimeout(() => playSound(1100, 0.2, 'square', 0.1), 300);
+      }
+
+      // ----- DATA -----
+      const CHILD_COLORS = ['#FF8F00','#FFA000','#FFB300','#FFC107','#FFD54F','#FFAB00','#FF6F00','#FFE57F','#FFD740','#FFC400'];
+      const PLEASING_COLORS = ['#00695C','#00897B','#26A69A','#4DB6AC','#80CBC4','#009688','#00796B','#48A999','#64B5AC','#00838F'];
+      const DIRTY_COLORS = ['#ff1744','#d50032','#c51162','#ff4081','#f50057','#ff3355','#e91e63','#ff5252','#b71c1c','#880e4f'];
+      const EMOJI_LIST = ['😊','😂','🤣','😍','😎','🤩','😜','😈','👻','🎃','🦄','🐶','🐱','🦊','🐼','🐨','🐸','🦁','🐯','🐻','🍕','🎸','🎮','💎','🔥','⚡','🌟','💀','👑','🤡','👽','🤖','🎭'];
+
+      let items = ['Alex', 'Jordan', 'Sam', 'Riley', 'Morgan'];
+      let playerEmojis = {};
+      let selectedEmoji = '😊';
+      let spinning = false;
+      let currentRotation = 0;
+      let currentLevel = 'child';
+      let lastSelectedPlayer = null;
+      let streakCount = 0;
+      let totalSpins = 0;
+      let completedTasks = 0;
+      let timerActive = false;
+      let timerInterval = null;
+      let timeLeft = 30;
+      let timerDuration = 30;
+      let wildcardMode = false;
+      let soundEnabled = true;
+      let spinHistory = [];
+      let achievements = new Set();
+      let usedTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] }, wildcard: { truth: [], dare: [] } };
+      let communityTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] } };
+
+      // Achievements list
+      const ACHIEVEMENTS = {
+        firstSpin: { title: '🎯 First Spin!', desc: 'You spun the wheel for the first time!', condition: () => totalSpins >= 1 },
+        spinMaster: { title: '🎰 Spin Master', desc: 'Complete 10 spins!', condition: () => totalSpins >= 10 },
+        spinAddict: { title: '🔄 Spin Addict', desc: 'Complete 50 spins!', condition: () => totalSpins >= 50 },
+        truthSeeker: { title: '💬 Truth Seeker', desc: 'Complete 5 truth tasks!', condition: () => spinHistory.filter(h => h.type === 'truth').length >= 5 },
+        dareDevil: { title: '⚡ Dare Devil', desc: 'Complete 5 dare tasks!', condition: () => spinHistory.filter(h => h.type === 'dare').length >= 5 },
+        streaker: { title: '🔥 Hot Streak', desc: 'Reach a streak of 5!', condition: () => streakCount >= 5 },
+        megaStreak: { title: '💎 Mega Streak', desc: 'Reach a streak of 10!', condition: () => streakCount >= 10 },
+        explorer: { title: '🗺️ Explorer', desc: 'Try all 3 levels!', condition: () => new Set(spinHistory.map(h => h.level)).size >= 3 },
+        collector: { title: '📚 Collector', desc: 'Fill history with 20 entries!', condition: () => spinHistory.length >= 20 },
+        wildcard: { title: '🃏 Wild One', desc: 'Use wildcard mode 5 times!', condition: () => spinHistory.filter(h => h.level === 'wildcard').length >= 5 }
+      };
+
+      function checkAchievements() {
+        let newAchievement = false;
+        
+        for (const [key, achievement] of Object.entries(ACHIEVEMENTS)) {
+          if (!achievements.has(key) && achievement.condition()) {
+            achievements.add(key);
+            showAchievement(achievement.title, achievement.desc);
+            playAchievementSound();
+            newAchievement = true;
+            break; // Show one at a time
+          }
+        }
+        
+        return newAchievement;
+      }
+
+      function showAchievement(title, desc) {
+        const popup = document.getElementById('achievement-popup');
+        document.getElementById('achievement-text').textContent = title;
+        document.getElementById('achievement-desc').textContent = desc;
+        popup.classList.remove('hidden');
+        
+        if (typeof confetti !== 'undefined') {
+          confetti({
+            particleCount: 100,
+            spread: 100,
+            origin: { y: 0.5, x: 0.5 },
+            colors: ['#fbbf24', '#ffd700', '#ffaa00']
+          });
+        }
+        
+        setTimeout(() => {
+          popup.classList.add('hidden');
+        }, 4000);
+      }
+
+      // Tasks database
+      const tasks = {
+        child: {
+          truth: [
+            "What's the funniest face you can make right now?",
+            "If you could have any superpower for a day, what would you do?",
+            "What's your favorite cartoon character and why?",
+            "Tell us about a time you laughed so hard you snorted.",
+            "What's the silliest thing you've ever eaten?",
+            "If your pet could talk, what would it say about you?",
+            "What's your go-to dance move when nobody's watching?",
+            "Which emoji describes you best today?",
+            "If you were a fruit, what fruit would you be?",
+            "What's the weirdest dream you've ever had?",
+            "If you could be any animal for a day, which would you choose?",
+            "What's the most ridiculous outfit you've ever worn?",
+            "Tell us your best knock-knock joke!",
+            "What's your secret talent that nobody knows about?",
+            "If you could only eat one color of food forever, what color?"
+          ],
+          dare: [
+            "Do an impression of a chicken for 15 seconds.",
+            "Talk in a robot voice until your next turn.",
+            "Spin around 5 times and then try to walk straight.",
+            "Make up a short rap about the person on your left.",
+            "Pretend you're a waiter and take everyone's drink order.",
+            "Act like a monkey for 20 seconds.",
+            "Balance a book on your head and walk across the room.",
+            "Sing 'Twinkle Twinkle Little Star' in a dramatic opera voice.",
+            "Do 10 jumping jacks while naming animals.",
+            "Create a secret handshake with the person opposite you.",
+            "Walk like a penguin for 30 seconds.",
+            "Make up a silly song about the current weather.",
+            "Do your best dinosaur roar.",
+            "Try to juggle with three imaginary balls.",
+            "Speak only in questions for the next minute."
+          ]
+        },
+        pleasing: {
+          truth: [
+            "What's the most embarrassing song you secretly love?",
+            "If you could swap lives with someone in this room, who would it be?",
+            "What's a skill you wish you had but don't?",
+            "Tell us about your most awkward date experience.",
+            "What's the last lie you told?",
+            "If you could be invisible for an hour, where would you go?",
+            "What's a food combination you love but others find weird?",
+            "Have you ever pretended to laugh at a joke you didn't get?",
+            "What's your guilty pleasure TV show?",
+            "If you could only eat one meal for the rest of your life, what?",
+            "What's the most adventurous thing you've ever done?",
+            "If you could have dinner with any historical figure, who?",
+            "What's your most irrational fear?",
+            "Tell us about a time you completely failed at something.",
+            "What's the best piece of advice you've ever received?"
+          ],
+          dare: [
+            "Do your best impression of another player in the room.",
+            "Speak in an accent for the next 3 rounds.",
+            "Let the group choose a new profile picture for your phone.",
+            "Post a funny selfie on your social media.",
+            "Call a friend and tell them you just saw a unicorn.",
+            "Do a dramatic reading of the last text message you received.",
+            "Dance to a song chosen by the group for 30 seconds.",
+            "Try to lick your elbow for 10 seconds.",
+            "Swap an item of clothing with the person next to you.",
+            "Tell a joke with a completely straight face.",
+            "Do a handstand against the wall (or try to).",
+            "Speak in rhymes for the next 2 minutes.",
+            "Let someone draw something on your face with makeup.",
+            "Do the worm dance move (or your best attempt).",
+            "Compliment every person in the room sincerely."
+          ]
+        },
+        dirty: {
+          truth: [
+            "What's your biggest turn-on that you've never told anyone?",
+            "Describe in detail the most seductive dream you've ever had.",
+            "If you could spend one night with anyone in this room, who?",
+            "What's the most scandalous place you've ever been intimate?",
+            "Rate everyone here from most to least attractive.",
+            "What's the naughtiest fantasy you replay in your mind?",
+            "What's the most flirtatious thing you've ever done?",
+            "Describe your perfect kiss in slow, sensual detail.",
+            "What's the wildest thing you've ever done under desire?",
+            "If you could read one person's dirty thoughts, whose?",
+            "What's your biggest secret that would make everyone blush?",
+            "Describe the sexiest outfit you own.",
+            "What's the most tempting offer you've ever received?",
+            "If you could enact one fantasy right now, what?",
+            "What part of your body do you find most irresistible?"
+          ],
+          dare: [
+            "Give a slow, sensual shoulder massage to the person on your left.",
+            "Whisper something dangerously flirty in the ear of the person to your right.",
+            "Do your most seductive dance move while maintaining eye contact.",
+            "Send a boldly flirtatious text to the last person you messaged.",
+            "Describe the player across from you using only suggestive adjectives.",
+            "Feed the person next to you a bite of something in a sensual way.",
+            "Let someone in the group scroll through your photo gallery.",
+            "Perform a slow body roll while everyone watches.",
+            "Write a short, steamy poem about an object in this room.",
+            "Do 10 slow squats while holding intense eye contact.",
+            "Let the group send one message from your phone to anyone.",
+            "Give a lingering hug to the person you find most attractive.",
+            "Trace a shape very slowly on someone's palm.",
+            "Call a friend and say 'I can't stop thinking about you' in a sultry voice.",
+            "Imitate a famous seduction scene from a movie."
+          ]
+        }
+      };
+
+      const wildcardTasks = {
+        truth: [
+          "If you had to marry someone in this room, who and why?",
+          "What's the most embarrassing thing in your search history?",
+          "Rate everyone in the room by attractiveness.",
+          "What's the biggest secret you're keeping from the group?",
+          "Describe your perfect partner in extreme detail.",
+          "What's the naughtiest thought you've had today?",
+          "If you could swap bodies with someone here, who?",
+          "What's the most scandalous rumor you've heard about yourself?",
+          "Describe your first kiss in slow motion.",
+          "What's the wildest fantasy you've never told anyone?"
+        ],
+        dare: [
+          "Do a body roll in slow motion.",
+          "Let the group go through your phone for 30 seconds.",
+          "Perform a lap dance on an empty chair.",
+          "Call your crush and confess something.",
+          "Do a trust fall with the person behind you.",
+          "Let someone blindfold you for the next round.",
+          "Whisper your deepest secret to the person on your left.",
+          "Do your best impression of a sensual massage therapist.",
+          "Let someone write a status on your social media.",
+          "Do a dramatic reading of the last flirty text you sent."
+        ]
+      };
+
+      const bonusQuestions = [
+        "Who's most likely to refuse a dare? 🤔",
+        "Who's most likely to fall in love at first sight? 💘",
+        "Who's the biggest troublemaker here? 😈",
+        "Who gives the best advice? 🦉",
+        "Who's most likely to become famous? ⭐",
+        "Who's the funniest person in the room? 😂",
+        "Who's most likely to streak across a football field? 🏃",
+        "Who tells the worst jokes? 🥁"
+      ];
+      
+      const penalties = [
+        "Do 10 pushups right now! 💪",
+        "Sing 'Happy Birthday' in a dramatic opera voice! 🎭",
+        "Speak in a silly accent for the next 2 rounds! 🗣️",
+        "Do a silly walk around the room! 🚶",
+        "Tell a joke that everyone must groan at! 🥁",
+        "Act like a cat for 30 seconds! 🐱",
+        "Do 15 jumping jacks! 🏃",
+        "Balance on one foot while counting to 20! 🦩"
+      ];
+
+      // ----- DOM ELEMENTS -----
+      const canvas = document.getElementById('wheel-canvas');
+      const ctx = canvas.getContext('2d');
+      const chipsEl = document.getElementById('chips');
+      const spinBtn = document.getElementById('spin-btn');
+      const resultArea = document.getElementById('result-area');
+      const winnerNameEl = document.getElementById('winner-name');
+      const taskTextEl = document.getElementById('task-text');
+      const taskIconEl = document.getElementById('task-icon');
+      const taskTypeBadge = document.getElementById('task-type-badge');
+      const levelIndicator = document.getElementById('level-indicator');
+      const mainBody = document.getElementById('main-body');
+
+      function updateCommunityTaskCount() {
+        const count = Object.values(communityTasks).reduce((levelTotal, level) => {
+          return levelTotal + level.truth.length + level.dare.length;
+        }, 0);
+        document.getElementById('community-task-count').textContent = `${count} community task${count === 1 ? '' : 's'} available`;
+      }
+
+      async function loadCommunityTasks() {
+        try {
+          const response = await fetch('/api/tasks');
+          if (!response.ok) throw new Error('Unable to load community tasks.');
+          const data = await response.json();
+
+          communityTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] } };
+          data.tasks.forEach(task => {
+            if (communityTasks[task.level] && communityTasks[task.level][task.type]) {
+              communityTasks[task.level][task.type].push(task.prompt);
+            }
+          });
+          updateCommunityTaskCount();
+        } catch (error) {
+          document.getElementById('community-task-count').textContent = 'Community tasks are temporarily unavailable.';
+          console.error(error);
+        }
+      }
+
+      // ----- FUNCTIONS -----
+      function getActiveColors() {
+        if (currentLevel === 'child') return CHILD_COLORS;
+        if (currentLevel === 'pleasing') return PLEASING_COLORS;
+        return DIRTY_COLORS;
+      }
+
+      function drawWheel() {
+        const activeColors = getActiveColors();
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w / 2 - 10;
+        
+        ctx.clearRect(0, 0, w, h);
+        
+        if (!items.length) {
+          ctx.fillStyle = '#ffffff60';
+          ctx.font = '700 24px "DM Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('Add players!', cx, cy);
+          return;
+        }
+        
+        const arc = (Math.PI * 2) / items.length;
+        
+        // Draw outer ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        items.forEach((item, i) => {
+          const start = i * arc;
+          const end = start + arc;
+          
+          // Draw segment
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, r, start, end);
+          ctx.closePath();
+          ctx.fillStyle = activeColors[i % activeColors.length];
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          // Draw text
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(start + arc / 2);
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = currentLevel === 'child' ? '#3e2723' : '#ffffff';
+          
+          const emoji = playerEmojis[item] || '';
+          const displayText = emoji ? `${emoji} ${item}` : item;
+          const fontSize = Math.min(28, Math.max(14, 200 / items.length));
+          ctx.font = `700 ${fontSize}px 'DM Sans', sans-serif`;
+          
+          // Truncate if needed
+          const maxChars = Math.floor(r / (fontSize * 0.6));
+          const textToShow = displayText.length > maxChars ? displayText.slice(0, maxChars - 1) + '…' : displayText;
+          ctx.fillText(textToShow, r - 18, 0);
+          ctx.restore();
+        });
+        
+        // Draw center circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = currentLevel === 'dirty' ? '#ff3355' : (currentLevel === 'child' ? '#ff8f00' : '#00897b');
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      function renderChips() {
+        const activeColors = getActiveColors();
+        chipsEl.innerHTML = '';
+        
+        items.forEach((item, i) => {
+          const chip = document.createElement('span');
+          chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg';
+          chip.style.background = activeColors[i % activeColors.length];
+          chip.style.color = currentLevel === 'child' ? '#3e2723' : '#fff';
+          
+          const emoji = playerEmojis[item] || '';
+          chip.innerHTML = `${emoji} ${item} <button class="ml-1 hover:bg-white/20 rounded-full w-5 h-5 flex items-center justify-center transition text-base leading-none">&times;</button>`;
+          
+          chip.querySelector('button').onclick = (e) => {
+            e.stopPropagation();
+            playClickSound();
+            delete playerEmojis[items[i]];
+            items.splice(i, 1);
+            renderChips();
+            drawWheel();
+            updateUI();
+          };
+          
+          chipsEl.appendChild(chip);
+        });
+        
+        document.getElementById('player-count').textContent = `${items.length} player${items.length !== 1 ? 's' : ''}`;
+        document.getElementById('player-count-dash').textContent = items.length;
+      }
+
+      function getRandomTask() {
+        const coinFlip = Math.random() < 0.5 ? 'truth' : 'dare';
+        let poolKey = wildcardMode ? 'wildcard' : currentLevel;
+        let pool = wildcardMode ? wildcardTasks : tasks[currentLevel];
+        let taskList = pool[coinFlip] || pool.truth;
+
+        if (!wildcardMode) {
+          taskList = [...taskList, ...communityTasks[currentLevel][coinFlip]];
+        }
+        
+        if (!usedTasks[poolKey]) usedTasks[poolKey] = { truth: [], dare: [] };
+        let used = usedTasks[poolKey][coinFlip];
+        let available = taskList.filter(t => !used.includes(t));
+        
+        if (available.length === 0) {
+          usedTasks[poolKey][coinFlip] = [];
+          available = [...taskList];
+        }
+        
+        const chosen = available[Math.floor(Math.random() * available.length)];
+        usedTasks[poolKey][coinFlip].push(chosen);
+        
+        return { task: chosen, type: coinFlip };
+      }
+
+      function displayTask(taskData, playerName = null) {
+        const displayPlayer = playerName || lastSelectedPlayer;
+        if (!displayPlayer) return;
+        
+        const { task, type } = taskData;
+        taskTextEl.textContent = task;
+        taskIconEl.textContent = type === 'truth' ? '💬' : '⚡';
+        taskTypeBadge.textContent = type === 'truth' ? '🤔 TRUTH' : '🎯 DARE';
+        taskTypeBadge.className = type === 'truth' 
+          ? 'px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500/20 border border-blue-400/40' 
+          : 'px-4 py-1.5 rounded-full text-sm font-bold bg-rose-500/20 border border-rose-400/40';
+        
+        levelIndicator.textContent = wildcardMode 
+          ? '🃏 WILDCARD' 
+          : (currentLevel === 'child' ? '🧸 Child' : (currentLevel === 'pleasing' ? '😇 Pleasing' : '🌶️ Dirty 18+'));
+        
+        resultArea.classList.remove('hidden');
+        winnerNameEl.textContent = displayPlayer;
+        
+        addToHistory(displayPlayer, task, type);
+        
+        if (timerActive) startTimer();
+        spawnConfetti();
+        checkAchievements();
+      }
+
+      function displayAutoTask() {
+        if (!lastSelectedPlayer) return;
+        displayTask(getRandomTask());
+        checkBonusRound();
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timerDuration;
+        document.getElementById('timer-bar-container').classList.remove('hidden');
+        document.getElementById('timer-bar').style.width = '100%';
+        
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById('timer-bar').style.width = `${(timeLeft / timerDuration) * 100}%`;
+          
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timer-bar-container').classList.add('hidden');
+            streakCount = Math.max(0, streakCount - 1);
+            updateUI();
+            showPenalty();
+          }
+        }, 1000);
+      }
+
+      function stopTimer() {
+        clearInterval(timerInterval);
+        document.getElementById('timer-bar-container').classList.add('hidden');
+      }
+
+      function checkBonusRound() {
+        if (totalSpins > 0 && totalSpins % 5 === 0) {
+          setTimeout(() => {
+            document.getElementById('bonus-question').textContent = bonusQuestions[Math.floor(Math.random() * bonusQuestions.length)];
+            document.getElementById('bonus-modal').classList.remove('hidden');
+          }, 2000);
+        }
+      }
+
+      function showPenalty() {
+        document.getElementById('penalty-text').textContent = penalties[Math.floor(Math.random() * penalties.length)];
+        document.getElementById('penalty-modal').classList.remove('hidden');
+      }
+
+      function spawnConfetti() {
+        if (typeof confetti !== 'undefined') {
+          const colors = currentLevel === 'child' 
+            ? ['#FF8F00', '#FFA000', '#FFB300'] 
+            : currentLevel === 'pleasing' 
+              ? ['#00695C', '#00897B', '#26A69A'] 
+              : ['#ff1744', '#ff4081', '#f50057'];
+          
+          confetti({
+            particleCount: 50,
+            spread: 70,
+            origin: { y: 0.5, x: 0.5 },
+            colors: colors
+          });
+        }
+      }
+
+      function addToHistory(player, task, type) {
+        spinHistory.unshift({
+          player,
+          task,
+          type,
+          level: wildcardMode ? 'wildcard' : currentLevel,
+          timestamp: new Date().toLocaleTimeString(),
+          date: new Date().toLocaleDateString()
+        });
+        
+        if (spinHistory.length > 50) spinHistory.pop();
+      }
+
+      function showFullHistory() {
+        playClickSound();
+        const historyList = document.getElementById('full-history-list');
+        
+        if (spinHistory.length === 0) {
+          historyList.innerHTML = '<p class="text-center text-white font-bold py-8">No spins yet! 🎯</p>';
+        } else {
+          historyList.innerHTML = spinHistory.map((entry, i) => `
+            <div class="history-item flex items-center gap-3 text-sm p-4 rounded-xl" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);">
+              <span class="text-2xl">${entry.type === 'truth' ? '💬' : '⚡'}</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="player-name font-extrabold" style="color: #fbbf24 !important; font-size: 1.05rem;">${entry.player}</span>
+                  <span class="level-badge text-xs px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.3); color: #fff; border: 1px solid rgba(251,191,36,0.5);">${entry.level}</span>
+                </div>
+                <p class="task-text mt-1 font-semibold break-words" style="color: #ffffff !important; font-size: 0.95rem; opacity: 1;">${entry.task}</p>
+                <span class="timestamp text-xs font-medium" style="color: rgba(255,255,255,0.85);">${entry.date} ${entry.timestamp}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+        
+        document.getElementById('history-modal').classList.remove('hidden');
+      }
+
+      function exportHistory() {
+        if (spinHistory.length === 0) {
+          showToast('No history to export!', 'warning');
+          return;
+        }
+        
+        const csv = ['Date,Time,Player,Type,Level,Task',
+          ...spinHistory.map(e => `"${e.date}","${e.timestamp}","${e.player}","${e.type}","${e.level}","${e.task}"`)
+        ].join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `aeinz-history-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('History exported! 📥', 'success');
+      }
+
+      function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        
+        const icons = { info: '💡', success: '✅', warning: '⚠️', error: '❌' };
+        toast.textContent = `${icons[type] || '💡'} ${message}`;
+        
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function updateUI() {
+        spinBtn.disabled = items.length < 2 || spinning;
+        document.getElementById('total-spins').textContent = totalSpins;
+        document.getElementById('completed-tasks').textContent = completedTasks;
+        document.getElementById('streak-count').textContent = streakCount;
+        drawWheel();
+      }
+
+      function applyTheme(level) {
+        mainBody.classList.remove('child-theme', 'pleasing-theme', 'dirty-theme');
+        
+        const activeDisplay = document.getElementById('active-level-display');
+        const activeIcon = document.getElementById('active-level-icon');
+        const activeText = document.getElementById('active-level-text');
+        
+        if (level === 'child') {
+          mainBody.classList.add('child-theme');
+          mainBody.style.color = '#333';
+          activeDisplay.style.background = 'linear-gradient(135deg, #ff8f00, #ffa000)';
+          activeDisplay.style.color = '#fff';
+          activeDisplay.style.fontFamily = "'Fredoka One', cursive";
+          activeIcon.textContent = '🧸';
+          activeText.textContent = "CHILD'S PLAY";
+        } else if (level === 'pleasing') {
+          mainBody.classList.add('pleasing-theme');
+          mainBody.style.color = '#1a3c34';
+          activeDisplay.style.background = 'linear-gradient(135deg, #00897b, #26a69a)';
+          activeDisplay.style.color = '#fff';
+          activeDisplay.style.fontFamily = "'Playfair Display', serif";
+          activeIcon.textContent = '😇';
+          activeText.textContent = 'PLEASING';
+        } else if (level === 'dirty') {
+          mainBody.classList.add('dirty-theme');
+          mainBody.style.color = '#fdf8ef';
+          activeDisplay.style.background = 'linear-gradient(135deg, #ff3355, #c51162)';
+          activeDisplay.style.color = '#fff';
+          activeDisplay.style.fontFamily = "'DM Sans', sans-serif";
+          activeIcon.textContent = '🌶️';
+          activeText.textContent = 'DIRTY & FLIRTY 18+';
+        }
+        
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.color = level === 'child' ? '#5d4037' : (level === 'pleasing' ? '#004d40' : '#ffb3c6');
+        }
+      }
+
+      function buildEmojiGrid() {
+        const grid = document.getElementById('emoji-grid');
+        grid.innerHTML = '';
+        
+        EMOJI_LIST.forEach(emoji => {
+          const btn = document.createElement('button');
+          btn.className = 'emoji-option';
+          btn.textContent = emoji;
+          if (emoji === selectedEmoji) btn.classList.add('selected');
+          
+          btn.addEventListener('click', () => {
+            playClickSound();
+            document.querySelectorAll('.emoji-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedEmoji = emoji;
+          });
+          
+          grid.appendChild(btn);
+        });
+      }
+
+      // ----- EVENT LISTENERS -----
+      
+      // Spin button
+      spinBtn.addEventListener('click', () => {
+        if (spinning || items.length < 2) return;
+        
+        initAudio();
+        spinning = true;
+        updateUI();
+        resultArea.classList.add('hidden');
+        stopTimer();
+        playSpinSound();
+        
+        const totalDeg = (4 + Math.random() * 4) * 360 + Math.random() * 360;
+        currentRotation += totalDeg;
+        
+        canvas.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+        
+        totalSpins++;
+        
+        setTimeout(() => {
+          canvas.style.transition = 'none';
+          spinning = false;
+          updateUI();
+          
+          const normalized = (currentRotation % 360 + 360) % 360;
+          const topAngle = (270 - normalized + 360) % 360;
+          const segment = 360 / items.length;
+          const winIdx = Math.floor(topAngle / segment) % items.length;
+          
+          lastSelectedPlayer = items[winIdx];
+          playWinSound();
+          displayAutoTask();
+          showToast(`${lastSelectedPlayer} was selected! 🎉`, 'success');
+        }, 4100);
+      });
+
+      // Re-roll button
+      document.getElementById('reroll-btn').addEventListener('click', () => {
+        if (!lastSelectedPlayer) return;
+        playClickSound();
+        displayTask(getRandomTask());
+      });
+
+      // Mark done button
+      document.getElementById('mark-done-btn').addEventListener('click', () => {
+        if (!lastSelectedPlayer) return;
+        playClickSound();
+        completedTasks++;
+        streakCount++;
+        updateUI();
+        stopTimer();
+        checkAchievements();
+        setTimeout(() => {
+          resultArea.classList.add('hidden');
+          lastSelectedPlayer = null;
+        }, 2000);
+        showToast('Task completed! +1 streak 🔥', 'success');
+        spawnConfetti();
+      });
+
+      // Double or nothing
+      document.getElementById('double-or-nothing-btn').addEventListener('click', () => {
+        if (!lastSelectedPlayer) return;
+        playClickSound();
+        const taskData = getRandomTask();
+        document.getElementById('double-task').textContent = taskData.task;
+        document.getElementById('double-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('double-accept').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('double-modal').classList.add('hidden');
+        if (lastSelectedPlayer) {
+          streakCount *= 2;
+          completedTasks++;
+          updateUI();
+          stopTimer();
+          spawnConfetti();
+          checkAchievements();
+          setTimeout(() => {
+            resultArea.classList.add('hidden');
+            lastSelectedPlayer = null;
+          }, 2000);
+        }
+      });
+
+      document.getElementById('double-decline').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('double-modal').classList.add('hidden');
+      });
+
+      // Bonus answer
+      document.getElementById('bonus-answer').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('bonus-modal').classList.add('hidden');
+        spawnConfetti();
+      });
+
+      // Penalty accept
+      document.getElementById('penalty-accept').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('penalty-modal').classList.add('hidden');
+      });
+
+      // Timer toggle
+      document.getElementById('timer-btn').addEventListener('click', () => {
+        playClickSound();
+        timerActive = !timerActive;
+        const timerBtn = document.getElementById('timer-btn');
+        
+        if (timerActive) {
+          timerBtn.style.background = 'rgba(251, 191, 36, 0.3)';
+          if (lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+            startTimer();
+          }
+        } else {
+          timerBtn.style.background = '';
+          stopTimer();
+        }
+      });
+
+      // Timer duration
+      document.getElementById('timer-duration').addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'off') {
+          timerActive = false;
+          stopTimer();
+          document.getElementById('timer-btn').style.background = '';
+        } else {
+          timerDuration = parseInt(val);
+          if (timerActive && lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+            stopTimer();
+            startTimer();
+          }
+        }
+      });
+
+      // Wildcard toggle
+      document.getElementById('wildcard-btn').addEventListener('click', () => {
+        playClickSound();
+        wildcardMode = !wildcardMode;
+        const wildcardBtn = document.getElementById('wildcard-btn');
+        
+        if (wildcardMode) {
+          wildcardBtn.style.background = 'rgba(168, 85, 247, 0.3)';
+        } else {
+          wildcardBtn.style.background = '';
+        }
+        
+        if (lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+          displayAutoTask();
+        }
+        
+        showToast(wildcardMode ? 'Wildcard mode ON! 🃏' : 'Wildcard mode OFF', 'info');
+      });
+
+      // Sound toggle
+      document.getElementById('sound-toggle').addEventListener('click', () => {
+        initAudio();
+        soundEnabled = !soundEnabled;
+        document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
+        playClickSound();
+        showToast(soundEnabled ? 'Sound ON' : 'Sound OFF', 'info');
+      });
+
+      // Shuffle
+      document.getElementById('shuffle-btn').addEventListener('click', () => {
+        if (items.length < 2) return;
+        playClickSound();
+        for (let i = items.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [items[i], items[j]] = [items[j], items[i]];
+        }
+        renderChips();
+        drawWheel();
+        showToast('Players shuffled! 🔀', 'info');
+      });
+
+      // Clear all
+      document.getElementById('clear-btn').addEventListener('click', () => {
+        playClickSound();
+        items = [];
+        playerEmojis = {};
+        lastSelectedPlayer = null;
+        resultArea.classList.add('hidden');
+        stopTimer();
+        renderChips();
+        drawWheel();
+        updateUI();
+        showToast('All players cleared!', 'info');
+      });
+
+      // Level buttons
+      document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playClickSound();
+          document.querySelectorAll('.level-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.borderColor = 'transparent';
+          });
+          
+          btn.classList.add('active');
+          btn.style.borderColor = currentLevel === 'child' ? '#ff8f00' : (currentLevel === 'pleasing' ? '#00897b' : '#ff3355');
+          
+          currentLevel = btn.dataset.level;
+          applyTheme(currentLevel);
+          
+          if (lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+            displayAutoTask();
+          }
+          
+          drawWheel();
+          renderChips();
+          showToast(`Switched to ${currentLevel === 'child' ? "Child's Play" : currentLevel === 'pleasing' ? 'Pleasing' : 'Dirty & Flirty'}!`, 'info');
+        });
+      });
+
+      // Emoji picker
+      document.getElementById('emoji-btn').addEventListener('click', () => {
+        playClickSound();
+        buildEmojiGrid();
+        document.getElementById('emoji-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('emoji-confirm').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('emoji-btn').textContent = selectedEmoji;
+        document.getElementById('emoji-modal').classList.add('hidden');
+      });
+
+      document.getElementById('emoji-cancel').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('emoji-modal').classList.add('hidden');
+      });
+
+      // Add player form
+      document.getElementById('add-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('item-input');
+        const val = input.value.trim();
+        
+        if (val && items.length < 20) {
+          playClickSound();
+          playerEmojis[val] = selectedEmoji;
+          items.push(val);
+          input.value = '';
+          selectedEmoji = '😊';
+          document.getElementById('emoji-btn').textContent = '😊';
+          renderChips();
+          drawWheel();
+          updateUI();
+          showToast(`${val} added! 👋`, 'success');
+        }
+      });
+
+      // Community task form
+      const taskModal = document.getElementById('task-modal');
+      const taskForm = document.getElementById('task-form');
+      const taskPrompt = document.getElementById('task-prompt');
+      const taskFormError = document.getElementById('task-form-error');
+      const saveTaskBtn = document.getElementById('save-task-btn');
+
+      document.getElementById('add-task-btn').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('task-level').value = currentLevel;
+        taskModal.classList.remove('hidden');
+        setTimeout(() => taskPrompt.focus(), 50);
+      });
+
+      document.getElementById('close-task-modal').addEventListener('click', () => {
+        taskModal.classList.add('hidden');
+      });
+
+      taskPrompt.addEventListener('input', () => {
+        document.getElementById('task-character-count').textContent = `${taskPrompt.value.length} / 240`;
+      });
+
+      taskForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        taskFormError.classList.add('hidden');
+        saveTaskBtn.disabled = true;
+        saveTaskBtn.textContent = 'Adding Task...';
+
+        const submission = {
+          prompt: taskPrompt.value.trim(),
+          type: document.getElementById('task-type').value,
+          level: document.getElementById('task-level').value,
+        };
+
+        try {
+          const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(submission),
+          });
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.error || 'Unable to add this task.');
+
+          communityTasks[data.task.level][data.task.type].unshift(data.task.prompt);
+          updateCommunityTaskCount();
+          taskForm.reset();
+          taskPrompt.value = '';
+          document.getElementById('task-character-count').textContent = '0 / 240';
+          taskModal.classList.add('hidden');
+          showToast('Task added for everyone! 🎉', 'success');
+        } catch (error) {
+          taskFormError.textContent = error.message;
+          taskFormError.classList.remove('hidden');
+        } finally {
+          saveTaskBtn.disabled = false;
+          saveTaskBtn.textContent = 'Add to the Game';
+        }
+      });
+
+      // History modal
+      document.getElementById('history-btn').addEventListener('click', showFullHistory);
+      document.getElementById('close-history').addEventListener('click', () => {
+        playClickSound();
+        document.getElementById('history-modal').classList.add('hidden');
+      });
+      document.getElementById('export-history').addEventListener('click', exportHistory);
+
+      // Close modals on overlay click
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            overlay.classList.add('hidden');
+          }
+        });
+      });
+
+      // Add click sounds to all buttons
+      document.querySelectorAll('button').forEach(btn => {
+        if (!btn.hasAttribute('data-sound-added')) {
+          btn.setAttribute('data-sound-added', 'true');
+          btn.addEventListener('click', function(e) {
+            initAudio();
+          }, { once: true });
+        }
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && !spinning && items.length >= 2 && document.activeElement === document.body) {
+          e.preventDefault();
+          spinBtn.click();
+        } else if (e.key === 'r' && lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+          document.getElementById('reroll-btn').click();
+        } else if (e.key === 'd' && lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
+          document.getElementById('double-or-nothing-btn').click();
+        } else if (e.key === 'Enter' && document.activeElement === document.getElementById('item-input')) {
+          document.getElementById('add-form').dispatchEvent(new Event('submit'));
+        }
+      });
+
+      // ----- INITIALIZATION -----
+      function init() {
+        applyTheme('child');
+        loadCommunityTasks();
+        buildEmojiGrid();
+        renderChips();
+        drawWheel();
+        updateUI();
+        
+        // Hide loading screen after a slight delay for smooth transition
+        setTimeout(() => {
+          document.getElementById('loading-screen').classList.add('hidden');
+        }, 1500);
+        
+        console.log('🎪 AEINZ TRUTH OR DARE WHEEL - Ultimate Edition Ready!');
+        console.log('🖼️ Custom SVG logo loading screen with particles');
+        console.log('✨ Fully responsive • All screen sizes supported');
+        console.log('⌨️ SPACE=Spin | R=Re-roll | D=Double | Enter=Add');
+        console.log('🏆 Achievement system active!');
+        console.log('🔊 Sound effects ready!');
+        
+        setTimeout(() => showToast('Welcome! Add players and spin! 🎯', 'info'), 2000);
+      }
+
+      // Start the app
+      init();
+      
+    })();
+  </script>
+</body>
+</html>
