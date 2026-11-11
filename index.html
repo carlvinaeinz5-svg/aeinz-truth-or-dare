@@ -458,6 +458,24 @@
       display: none;
     }
 
+    .auth-tab.active {
+      background: linear-gradient(90deg, #fbbf24, #f97316);
+      color: #000;
+    }
+
+    .tutorial-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .tutorial-dot.active {
+      width: 1.5rem;
+      background: #fbbf24;
+    }
+
     .modal-content {
       background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(49,46,129,0.98));
       border: 2px solid rgba(251,191,36,0.6);
@@ -668,6 +686,40 @@
   <div id="toast-container"></div>
 
   <main class="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+
+    <!-- Account Bar -->
+    <div id="account-bar" class="hidden flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div class="frost-panel rounded-full px-4 py-2 text-sm font-bold flex items-center gap-2">
+        <span>👤</span><span id="account-name"></span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="online-btn" class="relative rounded-full px-4 py-2 text-sm font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-black hover:scale-105 transition">
+          🌐 Play Online
+          <span id="invite-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-xs font-black flex items-center justify-center"></span>
+        </button>
+        <button id="tutorial-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Show tutorial">❓</button>
+        <button id="logout-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-white/20 transition">Log out</button>
+      </div>
+    </div>
+
+    <!-- Online Game Banner -->
+    <div id="online-banner" class="hidden frost-panel mb-4 flex flex-wrap items-center justify-between gap-3" style="border: 2px solid rgba(52,211,153,0.6);">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="relative flex h-3 w-3 shrink-0">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+        </span>
+        <div class="min-w-0">
+          <p class="text-sm font-black">🌐 Online game</p>
+          <p id="online-status" class="text-xs opacity-80 break-words"></p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button id="online-invite-more" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/30 transition">➕ Invite</button>
+        <button id="online-exit" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/30 transition" title="Go back to playing on this device. You keep your seat in the online game.">🏠 Local</button>
+        <button id="online-leave" class="rounded-full px-3 py-1.5 text-xs font-bold bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 transition">Leave game</button>
+      </div>
+    </div>
     
     <!-- Active Level Badge -->
     <div class="flex justify-center mb-4 sm:mb-6">
@@ -759,6 +811,7 @@
 
         <!-- Player Input -->
         <div class="frost-panel">
+          <p id="online-players-note" class="hidden text-sm font-bold mb-1">🌐 Players in this online game</p>
           <form id="add-form" class="flex gap-2">
             <input id="item-input" type="text" placeholder="Add player name..." 
                    class="flex-1 rounded-full px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition text-sm sm:text-base"
@@ -777,7 +830,7 @@
           
           <div class="flex justify-between items-center mt-3 text-xs sm:text-sm">
             <span class="opacity-70" id="player-count">5 players</span>
-            <div class="flex gap-2">
+            <div id="local-player-actions" class="flex gap-2">
               <button id="shuffle-btn" class="rounded-full px-3 py-1.5 bg-white/10 hover:bg-white/20 transition text-xs sm:text-sm">
                 🔀 Shuffle
               </button>
@@ -1008,6 +1061,108 @@
     </div>
   </div>
 
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay hidden" data-locked="true">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="text-center mb-5">
+        <h3 class="text-gradient text-4xl font-black leading-tight">AEINZ</h3>
+        <p class="text-white font-bold opacity-90">Truth or Dare</p>
+        <p id="auth-subtitle" class="text-sm text-white/70 mt-2">Sign in to save your progress and play online with friends.</p>
+      </div>
+
+      <div id="auth-tabs" class="grid grid-cols-2 gap-1 p-1 rounded-full bg-white/10 mb-5">
+        <button type="button" data-auth-tab="login" class="auth-tab rounded-full py-2 text-sm font-black transition text-white">Log in</button>
+        <button type="button" data-auth-tab="signup" class="auth-tab rounded-full py-2 text-sm font-black transition text-white">Sign up</button>
+      </div>
+
+      <form id="auth-form" class="space-y-3" novalidate>
+        <div data-auth-field="displayName">
+          <label for="auth-display-name" class="block text-sm font-bold text-white mb-1">Display name</label>
+          <input id="auth-display-name" type="text" maxlength="24" autocomplete="nickname" placeholder="How friends will find you" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+          <p class="text-xs text-white/60 mt-1 px-2">Friends invite you to online games using this name.</p>
+        </div>
+        <div data-auth-field="email">
+          <label for="auth-email" class="block text-sm font-bold text-white mb-1">Email</label>
+          <input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+        </div>
+        <div data-auth-field="password">
+          <label for="auth-password" class="block text-sm font-bold text-white mb-1">Password</label>
+          <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+        </div>
+        <p id="auth-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2" role="alert"></p>
+        <p id="auth-info" class="hidden text-sm font-bold text-emerald-200 bg-emerald-500/15 border border-emerald-400/30 rounded-xl px-3 py-2" role="status"></p>
+        <button id="auth-submit" type="submit" class="w-full rounded-full px-6 py-3 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition disabled:opacity-60 disabled:hover:scale-100">Log in</button>
+      </form>
+
+      <div class="flex justify-between items-center mt-4 text-sm">
+        <button type="button" id="auth-forgot" class="text-white/70 hover:text-white underline underline-offset-2">Forgot password?</button>
+        <button type="button" id="auth-back" class="hidden text-white/70 hover:text-white underline underline-offset-2">Back to log in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial Modal -->
+  <div id="tutorial-modal" class="modal-overlay hidden" data-locked="true">
+    <div class="modal-content text-center" style="max-width: 480px;">
+      <div class="flex justify-end">
+        <button type="button" id="tutorial-skip" class="text-sm text-white/60 hover:text-white">Skip tour</button>
+      </div>
+      <div id="tutorial-icon" class="text-6xl my-2"></div>
+      <h3 id="tutorial-title" class="text-2xl sm:text-3xl font-black text-amber-300 mb-3"></h3>
+      <p id="tutorial-body" class="text-white text-base leading-relaxed mb-6 min-h-[6rem]"></p>
+      <div id="tutorial-dots" class="flex justify-center gap-2 mb-5"></div>
+      <div class="flex justify-between gap-3">
+        <button type="button" id="tutorial-prev" class="rounded-full px-5 py-2.5 font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white disabled:opacity-30">Back</button>
+        <button type="button" id="tutorial-next" class="flex-1 rounded-full px-5 py-2.5 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Online Play Modal -->
+  <div id="online-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="flex justify-between items-start gap-4 mb-4">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white">🌐 Play Online</h3>
+          <p class="text-sm text-white/70">Invite friends by their display name. Everyone sees the same wheel live, wherever they are.</p>
+        </div>
+        <button id="close-online" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="rounded-2xl bg-white/5 border border-white/15 p-3 mb-4">
+        <p class="text-xs text-white/60 mb-1">Your display name (share it with friends)</p>
+        <form id="display-name-form" class="flex gap-2">
+          <input id="display-name-input" type="text" maxlength="24" class="flex-1 min-w-0 rounded-full px-4 py-2 bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400 transition text-sm">
+          <button type="submit" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white">Save</button>
+        </form>
+      </div>
+
+      <form id="invite-form" class="mb-2">
+        <label for="invite-name" class="block text-sm font-bold text-white mb-1">Invite a player</label>
+        <div class="flex gap-2">
+          <input id="invite-name" type="text" maxlength="24" placeholder="Their display name" autocomplete="off" class="flex-1 min-w-0 rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+          <button id="invite-submit" type="submit" class="rounded-full px-5 py-3 font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-black hover:scale-105 transition disabled:opacity-60 disabled:hover:scale-100">Send</button>
+        </div>
+      </form>
+      <p id="invite-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2 mb-2" role="alert"></p>
+
+      <div class="space-y-4 mt-4">
+        <section>
+          <h4 class="text-sm font-black text-amber-300 mb-2">📨 Invites for you</h4>
+          <div id="incoming-list" class="space-y-2"></div>
+        </section>
+        <section>
+          <h4 class="text-sm font-black text-amber-300 mb-2">🎮 Your online games</h4>
+          <div id="rooms-list" class="space-y-2"></div>
+        </section>
+        <section>
+          <h4 class="text-sm font-black text-amber-300 mb-2">⏳ Invites you sent</h4>
+          <div id="outgoing-list" class="space-y-2"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <footer class="relative z-10 text-center py-6 px-4 text-sm opacity-70">
     <p>&copy; 2026 <strong>C.AEINZ.ORG.UG</strong> / MADE by <strong>Aeinz the DESID</strong></p>
   </footer>
@@ -1138,6 +1293,7 @@
         for (const [key, achievement] of Object.entries(ACHIEVEMENTS)) {
           if (!achievements.has(key) && achievement.condition()) {
             achievements.add(key);
+            queueProgressSave();
             showAchievement(achievement.title, achievement.desc);
             playAchievementSound();
             newAchievement = true;
@@ -1369,6 +1525,10 @@
       }
 
       // ----- FUNCTIONS -----
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+      }
+
       function getActiveColors() {
         if (currentLevel === 'child') return CHILD_COLORS;
         if (currentLevel === 'pleasing') return PLEASING_COLORS;
@@ -1458,10 +1618,18 @@
           chip.style.background = activeColors[i % activeColors.length];
           chip.style.color = currentLevel === 'child' ? '#3e2723' : '#fff';
           
-          const emoji = playerEmojis[item] || '';
-          chip.innerHTML = `${emoji} ${item} <button class="ml-1 hover:bg-white/20 rounded-full w-5 h-5 flex items-center justify-center transition text-base leading-none">&times;</button>`;
+          const emoji = onlineRoom ? (item === onlineRoom.you ? '⭐' : '🌐') : (playerEmojis[item] || '');
+          chip.textContent = `${emoji} ${item}`;
+          if (onlineRoom) {
+            chipsEl.appendChild(chip);
+            return;
+          }
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'ml-1 hover:bg-white/20 rounded-full w-5 h-5 flex items-center justify-center transition text-base leading-none';
+          removeBtn.innerHTML = '&times;';
+          chip.appendChild(removeBtn);
           
-          chip.querySelector('button').onclick = (e) => {
+          removeBtn.onclick = (e) => {
             e.stopPropagation();
             playClickSound();
             delete playerEmojis[items[i]];
@@ -1522,11 +1690,11 @@
         resultArea.classList.remove('hidden');
         winnerNameEl.textContent = displayPlayer;
         
-        addToHistory(displayPlayer, task, type);
+        if (!onlineRoom) addToHistory(displayPlayer, task, type);
         
         if (timerActive) startTimer();
         spawnConfetti();
-        checkAchievements();
+        if (!onlineRoom) checkAchievements();
       }
 
       function displayAutoTask() {
@@ -1616,11 +1784,11 @@
               <span class="text-2xl">${entry.type === 'truth' ? '💬' : '⚡'}</span>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="player-name font-extrabold" style="color: #fbbf24 !important; font-size: 1.05rem;">${entry.player}</span>
-                  <span class="level-badge text-xs px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.3); color: #fff; border: 1px solid rgba(251,191,36,0.5);">${entry.level}</span>
+                  <span class="player-name font-extrabold" style="color: #fbbf24 !important; font-size: 1.05rem;">${escapeHtml(entry.player)}</span>
+                  <span class="level-badge text-xs px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.3); color: #fff; border: 1px solid rgba(251,191,36,0.5);">${escapeHtml(entry.level)}</span>
                 </div>
-                <p class="task-text mt-1 font-semibold break-words" style="color: #ffffff !important; font-size: 0.95rem; opacity: 1;">${entry.task}</p>
-                <span class="timestamp text-xs font-medium" style="color: rgba(255,255,255,0.85);">${entry.date} ${entry.timestamp}</span>
+                <p class="task-text mt-1 font-semibold break-words" style="color: #ffffff !important; font-size: 0.95rem; opacity: 1;">${escapeHtml(entry.task)}</p>
+                <span class="timestamp text-xs font-medium" style="color: rgba(255,255,255,0.85);">${escapeHtml(entry.date)} ${escapeHtml(entry.timestamp)}</span>
               </div>
             </div>
           `).join('');
@@ -1734,6 +1902,11 @@
       // Spin button
       spinBtn.addEventListener('click', () => {
         if (spinning || items.length < 2) return;
+        if (onlineRoom) {
+          initAudio();
+          sendRoomAction({ type: 'spin' });
+          return;
+        }
         
         initAudio();
         spinning = true;
@@ -1763,6 +1936,7 @@
           lastSelectedPlayer = items[winIdx];
           playWinSound();
           displayAutoTask();
+          recordLocalSpin();
           showToast(`${lastSelectedPlayer} was selected! 🎉`, 'success');
         }, 4100);
       });
@@ -1771,6 +1945,7 @@
       document.getElementById('reroll-btn').addEventListener('click', () => {
         if (!lastSelectedPlayer) return;
         playClickSound();
+        if (onlineRoom) return sendRoomAction({ type: 'reroll' });
         displayTask(getRandomTask());
       });
 
@@ -1778,8 +1953,10 @@
       document.getElementById('mark-done-btn').addEventListener('click', () => {
         if (!lastSelectedPlayer) return;
         playClickSound();
+        if (onlineRoom) return sendRoomAction({ type: 'mark_done' });
         completedTasks++;
         streakCount++;
+        queueProgressSave();
         updateUI();
         stopTimer();
         checkAchievements();
@@ -1795,6 +1972,7 @@
       document.getElementById('double-or-nothing-btn').addEventListener('click', () => {
         if (!lastSelectedPlayer) return;
         playClickSound();
+        if (onlineRoom) return sendRoomAction({ type: 'double_preview' });
         const taskData = getRandomTask();
         document.getElementById('double-task').textContent = taskData.task;
         document.getElementById('double-modal').classList.remove('hidden');
@@ -1803,9 +1981,11 @@
       document.getElementById('double-accept').addEventListener('click', () => {
         playClickSound();
         document.getElementById('double-modal').classList.add('hidden');
+        if (onlineRoom) return sendRoomAction({ type: 'double_accept' });
         if (lastSelectedPlayer) {
           streakCount *= 2;
           completedTasks++;
+          queueProgressSave();
           updateUI();
           stopTimer();
           spawnConfetti();
@@ -1820,6 +2000,7 @@
       document.getElementById('double-decline').addEventListener('click', () => {
         playClickSound();
         document.getElementById('double-modal').classList.add('hidden');
+        if (onlineRoom) sendRoomAction({ type: 'double_decline' });
       });
 
       // Bonus answer
@@ -1871,6 +2052,7 @@
       // Wildcard toggle
       document.getElementById('wildcard-btn').addEventListener('click', () => {
         playClickSound();
+        if (onlineRoom) return sendRoomAction({ type: 'toggle_wildcard', enabled: !wildcardMode });
         wildcardMode = !wildcardMode;
         const wildcardBtn = document.getElementById('wildcard-btn');
         
@@ -1927,6 +2109,10 @@
       document.querySelectorAll('.level-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           playClickSound();
+          if (onlineRoom) {
+            if (btn.dataset.level !== currentLevel) sendRoomAction({ type: 'set_level', level: btn.dataset.level });
+            return;
+          }
           document.querySelectorAll('.level-btn').forEach(b => {
             b.classList.remove('active');
             b.style.borderColor = 'transparent';
@@ -2057,7 +2243,7 @@
       // Close modals on overlay click
       document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
-          if (e.target === overlay) {
+          if (e.target === overlay && !overlay.dataset.locked) {
             overlay.classList.add('hidden');
           }
         });
@@ -2075,6 +2261,7 @@
 
       // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
+        if (!profile || document.querySelector('.modal-overlay:not(.hidden)')) return;
         if (e.key === ' ' && !spinning && items.length >= 2 && document.activeElement === document.body) {
           e.preventDefault();
           spinBtn.click();
@@ -2085,6 +2272,767 @@
         } else if (e.key === 'Enter' && document.activeElement === document.getElementById('item-input')) {
           document.getElementById('add-form').dispatchEvent(new Event('submit'));
         }
+      });
+
+      // ----- ACCOUNT, TUTORIAL & ONLINE PLAY -----
+      const IDENTITY_URL = 'https://esm.sh/@netlify/identity@2.0.0';
+      let identity = null;
+      let profile = null;
+      let lifetime = null;
+      let onlineRoom = null;
+      let roomSig = null;
+      let deferredRoom = null;
+      let localSnapshot = null;
+      let roomPollTimer = null;
+      let invitePollTimer = null;
+      let actionInFlight = false;
+      let saveTimer = null;
+      let latestInvites = { incoming: [], outgoing: [], rooms: [] };
+      let authMode = 'login';
+
+      const $ = id => document.getElementById(id);
+
+      async function api(path, options = {}) {
+        const res = await fetch(path, {
+          credentials: 'same-origin',
+          ...options,
+          headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        });
+        let data = null;
+        try { data = await res.json(); } catch { data = null; }
+        if (!res.ok) {
+          const err = new Error((data && data.error) || 'Something went wrong. Please try again.');
+          err.status = res.status;
+          throw err;
+        }
+        return data;
+      }
+
+      // ---- Progress saving (local play) ----
+      function currentStatsPayload() {
+        return {
+          ...lifetime,
+          totalSpins,
+          completedTasks,
+          streakCount,
+          achievements: [...achievements],
+        };
+      }
+
+      function queueProgressSave() {
+        if (!profile || onlineRoom) return;
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(flushProgressSave, 1200);
+      }
+
+      function flushProgressSave(keepalive = false) {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+        if (!profile || onlineRoom) return Promise.resolve();
+        return fetch('/api/profile', {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          keepalive,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stats: currentStatsPayload() }),
+        }).catch(err => console.error('Could not save progress', err));
+      }
+
+      function recordLocalSpin() {
+        if (!lifetime) return;
+        const entry = spinHistory[0];
+        if (entry) {
+          if (entry.type === 'truth') lifetime.truthCount++;
+          else lifetime.dareCount++;
+          if (entry.level === 'wildcard') lifetime.wildcardCount++;
+          if (!lifetime.levelsTried.includes(entry.level)) lifetime.levelsTried.push(entry.level);
+        }
+        queueProgressSave();
+      }
+
+      function applyProfileStats(stats) {
+        lifetime = {
+          truthCount: stats.truthCount || 0,
+          dareCount: stats.dareCount || 0,
+          wildcardCount: stats.wildcardCount || 0,
+          levelsTried: Array.isArray(stats.levelsTried) ? [...stats.levelsTried] : [],
+        };
+        totalSpins = stats.totalSpins || 0;
+        completedTasks = stats.completedTasks || 0;
+        streakCount = stats.streakCount || 0;
+        achievements = new Set(Array.isArray(stats.achievements) ? stats.achievements : []);
+        updateUI();
+      }
+
+      function setProfile(next) {
+        profile = next;
+        $('account-name').textContent = next.displayName;
+        $('display-name-input').value = next.displayName;
+      }
+
+      window.addEventListener('beforeunload', () => {
+        if (saveTimer) flushProgressSave(true);
+      });
+
+      // ---- Auth screen ----
+      function setAuthMessage(kind, message) {
+        const errorEl = $('auth-error');
+        const infoEl = $('auth-info');
+        errorEl.classList.add('hidden');
+        infoEl.classList.add('hidden');
+        if (!message) return;
+        const el = kind === 'error' ? errorEl : infoEl;
+        el.textContent = message;
+        el.classList.remove('hidden');
+      }
+
+      function setAuthMode(mode) {
+        authMode = mode;
+        const fields = {
+          login: ['email', 'password'],
+          signup: ['displayName', 'email', 'password'],
+          forgot: ['email'],
+          reset: ['password'],
+        }[mode];
+        document.querySelectorAll('[data-auth-field]').forEach(el => {
+          el.classList.toggle('hidden', !fields.includes(el.dataset.authField));
+        });
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+          tab.classList.toggle('active', tab.dataset.authTab === mode);
+        });
+        $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
+        $('auth-forgot').classList.toggle('hidden', mode !== 'login');
+        $('auth-back').classList.toggle('hidden', mode !== 'forgot');
+        $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+        $('auth-submit').textContent = {
+          login: 'Log in',
+          signup: 'Create account',
+          forgot: 'Send reset link',
+          reset: 'Save new password',
+        }[mode];
+        $('auth-subtitle').textContent = {
+          login: 'Log in to keep your progress and play online with friends.',
+          signup: 'Create an account to save your progress and get invited to online games.',
+          forgot: "Enter your email and we'll send you a link to reset your password.",
+          reset: 'Choose a new password for your account.',
+        }[mode];
+        setAuthMessage(null, '');
+      }
+
+      function showAuth(mode = 'login', message = null) {
+        setAuthMode(mode);
+        if (message) setAuthMessage(message.kind, message.text);
+        $('account-bar').classList.add('hidden');
+        $('auth-modal').classList.remove('hidden');
+      }
+
+      function friendlyAuthError(error) {
+        if (identity && error instanceof identity.MissingIdentityError) {
+          return 'Accounts are not available on this site right now.';
+        }
+        const status = error && error.status;
+        const msg = (error && error.message) || '';
+        if (/not confirmed/i.test(msg)) return 'Please confirm your email first. Check your inbox for the confirmation link.';
+        if (status === 401 || /invalid/i.test(msg) && authMode === 'login') return 'Invalid email or password.';
+        if (status === 403) return 'New sign-ups are currently disabled.';
+        if (status === 422) return msg || 'Check your email and password (at least 6 characters).';
+        return msg || 'Something went wrong. Please try again.';
+      }
+
+      document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          playClickSound();
+          setAuthMode(tab.dataset.authTab);
+        });
+      });
+      $('auth-forgot').addEventListener('click', () => setAuthMode('forgot'));
+      $('auth-back').addEventListener('click', () => setAuthMode('login'));
+
+      $('auth-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!identity) {
+          setAuthMessage('error', 'Still connecting. Please try again in a moment.');
+          return;
+        }
+        const email = $('auth-email').value.trim();
+        const password = $('auth-password').value;
+        const displayName = $('auth-display-name').value.trim();
+
+        if (authMode !== 'reset' && !email) return setAuthMessage('error', 'Enter your email address.');
+        if ((authMode === 'login' || authMode === 'signup' || authMode === 'reset') && password.length < 6) {
+          return setAuthMessage('error', 'Password must be at least 6 characters.');
+        }
+        if (authMode === 'signup' && !displayName) return setAuthMessage('error', 'Choose a display name so friends can find you.');
+
+        const submit = $('auth-submit');
+        submit.disabled = true;
+        setAuthMessage(null, '');
+        try {
+          if (authMode === 'login') {
+            await identity.login(email, password);
+            await enterApp();
+          } else if (authMode === 'signup') {
+            await identity.signup(email, password, { full_name: displayName.slice(0, 24) });
+            const current = await identity.getUser();
+            if (current) {
+              await enterApp();
+            } else {
+              setAuthMode('login');
+              $('auth-email').value = email;
+              setAuthMessage('info', 'Account created! Check your email for a confirmation link, then log in here.');
+            }
+          } else if (authMode === 'forgot') {
+            await identity.requestPasswordRecovery(email);
+            setAuthMessage('info', 'If that email has an account, a reset link is on its way.');
+          } else if (authMode === 'reset') {
+            await identity.updateUser({ password });
+            showToast('Password updated! 🔐', 'success');
+            await enterApp();
+          }
+        } catch (error) {
+          console.error(error);
+          setAuthMessage('error', friendlyAuthError(error));
+        } finally {
+          submit.disabled = false;
+        }
+      });
+
+      $('logout-btn').addEventListener('click', async () => {
+        playClickSound();
+        await flushProgressSave();
+        try { await identity.logout(); } catch (err) { console.error(err); }
+        window.location.reload();
+      });
+
+      async function enterApp() {
+        let data;
+        try {
+          data = await api('/api/profile');
+        } catch (error) {
+          if (error.status === 401) {
+            showAuth('login', { kind: 'error', text: 'Your session expired. Please log in again.' });
+          } else {
+            showAuth('login', { kind: 'error', text: error.message });
+          }
+          return;
+        }
+        setProfile(data.profile);
+        applyProfileStats(data.profile.stats || {});
+        $('auth-modal').classList.add('hidden');
+        $('account-bar').classList.remove('hidden');
+        $('account-bar').classList.add('flex');
+
+        if (!data.profile.hasSeenTutorial) {
+          openTutorial();
+        } else {
+          showToast(`Welcome back, ${data.profile.displayName}! 🎯`, 'info');
+        }
+        refreshInvites();
+        clearInterval(invitePollTimer);
+        invitePollTimer = setInterval(refreshInvites, 8000);
+      }
+
+      async function bootAccount() {
+        try {
+          identity = await import(IDENTITY_URL);
+        } catch (error) {
+          console.error(error);
+          showAuth('login', { kind: 'error', text: 'Could not connect to the account service. Check your connection and reload.' });
+          return;
+        }
+        try {
+          const result = await identity.handleAuthCallback();
+          if (result && result.type === 'recovery') {
+            showAuth('reset');
+            return;
+          }
+          if (result && result.type === 'confirmation') showToast('Email confirmed! You are logged in. ✅', 'success');
+        } catch (error) {
+          console.error(error);
+          showAuth('login', { kind: 'error', text: friendlyAuthError(error) });
+          return;
+        }
+        const user = await identity.getUser();
+        if (user) {
+          await enterApp();
+        } else {
+          showAuth('login');
+        }
+      }
+
+      // ---- Tutorial ----
+      const TUTORIAL_STEPS = [
+        { icon: '🎪', title: 'Welcome to AEINZ!', body: 'Spin the wheel, find out who\'s up, and take on a truth or a dare. Here\'s a quick tour.' },
+        { icon: '👥', title: 'Add your players', body: 'Type names in the player box and tap Add. Pick an emoji for each one. You need at least 2 players to spin.' },
+        { icon: '🎯', title: 'Spin the wheel', body: 'Tap SPIN (or press Space). The wheel picks a player and gives them a random truth or dare.' },
+        { icon: '🌶️', title: 'Pick your level', body: 'Child\'s Play is family-friendly, Pleasing is a bit bolder, and Dirty & Flirty is for adults (18+). Wildcard mixes it up.' },
+        { icon: '🔥', title: 'Build your streak', body: 'Tap Done when a task is complete, Re-roll for a different one, or go Double or Nothing to double your streak.' },
+        { icon: '🌐', title: 'Play online', body: 'Tap Play Online and invite friends by their display name. Everyone sees the same wheel live, wherever they are.' },
+        { icon: '🏆', title: 'Your progress is saved', body: 'Spins, completed tasks, streaks, and achievements are saved to your account, so you can pick up on any device. Have fun!' },
+      ];
+      let tutorialStep = 0;
+
+      function renderTutorial() {
+        const step = TUTORIAL_STEPS[tutorialStep];
+        $('tutorial-icon').textContent = step.icon;
+        $('tutorial-title').textContent = step.title;
+        $('tutorial-body').textContent = step.body;
+        $('tutorial-prev').disabled = tutorialStep === 0;
+        $('tutorial-next').textContent = tutorialStep === TUTORIAL_STEPS.length - 1 ? "Let's play! 🎉" : 'Next';
+        $('tutorial-dots').innerHTML = TUTORIAL_STEPS.map((_, i) => `<span class="tutorial-dot${i === tutorialStep ? ' active' : ''}"></span>`).join('');
+      }
+
+      function openTutorial() {
+        tutorialStep = 0;
+        renderTutorial();
+        $('tutorial-modal').classList.remove('hidden');
+      }
+
+      async function closeTutorial() {
+        $('tutorial-modal').classList.add('hidden');
+        if (profile && !profile.hasSeenTutorial) {
+          profile.hasSeenTutorial = true;
+          try {
+            await api('/api/profile', { method: 'PATCH', body: JSON.stringify({ hasSeenTutorial: true }) });
+          } catch (err) {
+            console.error(err);
+          }
+          spawnConfetti();
+        }
+      }
+
+      $('tutorial-next').addEventListener('click', () => {
+        playClickSound();
+        if (tutorialStep < TUTORIAL_STEPS.length - 1) {
+          tutorialStep++;
+          renderTutorial();
+        } else {
+          closeTutorial();
+        }
+      });
+      $('tutorial-prev').addEventListener('click', () => {
+        playClickSound();
+        if (tutorialStep > 0) {
+          tutorialStep--;
+          renderTutorial();
+        }
+      });
+      $('tutorial-skip').addEventListener('click', closeTutorial);
+      $('tutorial-btn').addEventListener('click', () => {
+        playClickSound();
+        openTutorial();
+      });
+
+      // ---- Invites panel ----
+      function emptyRow(text) {
+        return `<p class="text-sm text-white/50 px-1">${escapeHtml(text)}</p>`;
+      }
+
+      function renderInvites() {
+        const { incoming, outgoing, rooms } = latestInvites;
+        const badge = $('invite-badge');
+        if (incoming.length) {
+          badge.textContent = incoming.length;
+          badge.classList.remove('hidden');
+          badge.classList.add('flex');
+        } else {
+          badge.classList.add('hidden');
+          badge.classList.remove('flex');
+        }
+
+        $('incoming-list').innerHTML = incoming.length ? incoming.map(inv => `
+          <div class="flex items-center justify-between gap-2 rounded-xl p-3 bg-white/10 border border-white/20">
+            <span class="text-sm text-white min-w-0 break-words"><strong>${escapeHtml(inv.fromDisplayName)}</strong> invited you to play</span>
+            <span class="flex gap-2 shrink-0">
+              <button data-invite-accept="${inv.id}" class="rounded-full px-3 py-1.5 text-xs font-black bg-emerald-400 text-black hover:bg-emerald-300 transition">Join</button>
+              <button data-invite-decline="${inv.id}" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white">Decline</button>
+            </span>
+          </div>`).join('') : emptyRow('No invites right now.');
+
+        $('rooms-list').innerHTML = rooms.length ? rooms.map(room => {
+          const others = room.players.map(p => p.displayName).filter(n => n !== profile.displayName);
+          const label = others.length ? `With ${others.join(', ')}` : 'Waiting for players to join';
+          const isCurrent = onlineRoom && onlineRoom.id === room.id;
+          return `
+          <div class="flex items-center justify-between gap-2 rounded-xl p-3 bg-white/10 border border-white/20">
+            <span class="text-sm text-white min-w-0 break-words">${escapeHtml(label)} <span class="text-xs text-white/50">· ${room.status === 'active' ? 'live' : 'lobby'}</span></span>
+            <button data-room-open="${room.id}" class="shrink-0 rounded-full px-3 py-1.5 text-xs font-black ${isCurrent ? 'bg-white/10 border border-white/30 text-white' : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black'} transition" ${isCurrent ? 'disabled' : ''}>${isCurrent ? 'Playing' : 'Open'}</button>
+          </div>`;
+        }).join('') : emptyRow('No online games yet. Invite someone to start one!');
+
+        $('outgoing-list').innerHTML = outgoing.length ? outgoing.map(inv => `
+          <div class="rounded-xl p-3 bg-white/5 border border-white/10 text-sm text-white/80">Waiting for <strong>${escapeHtml(inv.toDisplayName)}</strong> to accept…</div>`).join('') : emptyRow('No pending invites.');
+      }
+
+      async function refreshInvites() {
+        if (!profile) return;
+        try {
+          const previousIncoming = new Set(latestInvites.incoming.map(i => i.id));
+          latestInvites = await api('/api/invites');
+          const fresh = latestInvites.incoming.filter(i => !previousIncoming.has(i.id));
+          if (fresh.length && previousIncoming.size + fresh.length > 0 && invitePollTimer) {
+            fresh.forEach(i => showToast(`${i.fromDisplayName} invited you to play! 🌐`, 'info'));
+          }
+          renderInvites();
+        } catch (err) {
+          if (err.status === 401) clearInterval(invitePollTimer);
+          console.error(err);
+        }
+      }
+
+      function setInviteError(message) {
+        const el = $('invite-error');
+        el.textContent = message || '';
+        el.classList.toggle('hidden', !message);
+      }
+
+      function openOnlinePanel() {
+        playClickSound();
+        setInviteError('');
+        renderInvites();
+        refreshInvites();
+        $('online-modal').classList.remove('hidden');
+        setTimeout(() => $('invite-name').focus(), 50);
+      }
+
+      $('online-btn').addEventListener('click', openOnlinePanel);
+      $('online-invite-more').addEventListener('click', openOnlinePanel);
+      $('close-online').addEventListener('click', () => {
+        playClickSound();
+        $('online-modal').classList.add('hidden');
+      });
+
+      $('invite-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = $('invite-name').value.trim();
+        if (!name) return setInviteError('Enter the display name of the player you want to invite.');
+        const btn = $('invite-submit');
+        btn.disabled = true;
+        setInviteError('');
+        try {
+          const data = await api('/api/invites', { method: 'POST', body: JSON.stringify({ toDisplayName: name, roomId: onlineRoom ? onlineRoom.id : undefined }) });
+          $('invite-name').value = '';
+          showToast(`Invite sent to ${data.invite.toDisplayName}! 📨`, 'success');
+          await refreshInvites();
+          if (!onlineRoom || onlineRoom.id !== data.invite.roomId) {
+            await enterRoom(data.invite.roomId);
+          }
+        } catch (err) {
+          setInviteError(err.message);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      $('display-name-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = $('display-name-input').value.trim();
+        if (!name || name === profile.displayName) return;
+        setInviteError('');
+        try {
+          const data = await api('/api/profile', { method: 'PATCH', body: JSON.stringify({ displayName: name }) });
+          setProfile({ ...profile, displayName: data.profile.displayName });
+          showToast('Display name updated! ✨', 'success');
+        } catch (err) {
+          setInviteError(err.message);
+          $('display-name-input').value = profile.displayName;
+        }
+      });
+
+      $('online-modal').addEventListener('click', async (e) => {
+        const accept = e.target.closest('[data-invite-accept]');
+        const decline = e.target.closest('[data-invite-decline]');
+        const open = e.target.closest('[data-room-open]');
+        try {
+          if (accept) {
+            accept.disabled = true;
+            const data = await api(`/api/invites/${accept.dataset.inviteAccept}`, { method: 'POST', body: JSON.stringify({ action: 'accept' }) });
+            await refreshInvites();
+            await enterRoom(data.roomId);
+          } else if (decline) {
+            decline.disabled = true;
+            await api(`/api/invites/${decline.dataset.inviteDecline}`, { method: 'POST', body: JSON.stringify({ action: 'decline' }) });
+            await refreshInvites();
+          } else if (open && !open.disabled) {
+            await enterRoom(Number(open.dataset.roomOpen));
+          }
+        } catch (err) {
+          setInviteError(err.message);
+          refreshInvites();
+        }
+      });
+
+      // ---- Online room sync ----
+      function setOnlineChrome(active) {
+        $('online-banner').classList.toggle('hidden', !active);
+        $('online-banner').classList.toggle('flex', active);
+        $('add-form').classList.toggle('hidden', active);
+        $('local-player-actions').classList.toggle('hidden', active);
+        $('online-players-note').classList.toggle('hidden', !active);
+      }
+
+      function syncLevelButtons() {
+        document.querySelectorAll('.level-btn').forEach(b => {
+          const isActive = b.dataset.level === currentLevel;
+          b.classList.toggle('active', isActive);
+          b.style.borderColor = isActive ? (currentLevel === 'child' ? '#ff8f00' : (currentLevel === 'pleasing' ? '#00897b' : '#ff3355')) : 'transparent';
+        });
+      }
+
+      function syncWildcardButton() {
+        $('wildcard-btn').style.background = wildcardMode ? 'rgba(168, 85, 247, 0.3)' : '';
+      }
+
+      function updateOnlineBanner() {
+        if (!onlineRoom) return;
+        const others = onlineRoom.players.map(p => p.displayName).filter(n => n !== onlineRoom.you);
+        const pending = latestInvites.outgoing.filter(i => i.roomId === onlineRoom.id).map(i => i.toDisplayName);
+        let text;
+        if (!others.length) {
+          text = pending.length ? `Waiting for ${pending.join(', ')} to accept your invite…` : 'Waiting for players to join. Invite a friend!';
+        } else {
+          text = `Playing with ${others.join(', ')} · you are ${onlineRoom.you}`;
+          if (pending.length) text += ` · invited: ${pending.join(', ')}`;
+        }
+        $('online-status').textContent = text;
+      }
+
+      function roomSignature(st) {
+        const historyLen = (st.spinHistory || []).length;
+        return {
+          totalSpins: st.totalSpins,
+          completedTasks: st.completedTasks,
+          taskKey: st.currentTask ? `${historyLen}|${st.lastSelectedPlayer}|${st.currentTask.task}` : '',
+          doubleKey: st.pendingDouble ? st.pendingDouble.task : '',
+        };
+      }
+
+      function showRoomTask(st) {
+        lastSelectedPlayer = st.lastSelectedPlayer;
+        if (st.currentTask && lastSelectedPlayer) {
+          displayTask(st.currentTask, lastSelectedPlayer);
+        }
+      }
+
+      function animateSpinTo(name, done) {
+        const idx = items.indexOf(name);
+        if (idx < 0) return done();
+        spinning = true;
+        updateUI();
+        resultArea.classList.add('hidden');
+        stopTimer();
+        playSpinSound();
+
+        const segment = 360 / items.length;
+        const targetTop = (idx + 0.2 + Math.random() * 0.6) * segment;
+        const targetNorm = ((270 - targetTop) % 360 + 360) % 360;
+        const currentNorm = (currentRotation % 360 + 360) % 360;
+        currentRotation += 5 * 360 + ((targetNorm - currentNorm + 360) % 360);
+
+        canvas.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+          canvas.style.transition = 'none';
+          spinning = false;
+          updateUI();
+          done();
+          if (deferredRoom) {
+            const next = deferredRoom;
+            deferredRoom = null;
+            applyRoom(next);
+          }
+        }, 4100);
+      }
+
+      function applyRoom(room, initial = false) {
+        if (!onlineRoom && !initial) return;
+        if (spinning) {
+          deferredRoom = room;
+          return;
+        }
+        if (room.status === 'ended') {
+          showToast('This online game has ended.', 'info');
+          exitOnline();
+          return;
+        }
+
+        const st = room.state;
+        const prev = initial ? null : roomSig;
+        const sig = roomSignature(st);
+        onlineRoom = room;
+        roomSig = sig;
+
+        const playersChanged = items.join('\u0000') !== st.items.join('\u0000');
+        items = st.items.slice();
+        if (currentLevel !== st.level) {
+          currentLevel = st.level;
+          applyTheme(currentLevel);
+          if (prev) showToast(`Level changed to ${currentLevel === 'child' ? "Child's Play" : currentLevel === 'pleasing' ? 'Pleasing' : 'Dirty & Flirty'}`, 'info');
+        }
+        syncLevelButtons();
+        if (wildcardMode !== !!st.wildcardMode && prev) showToast(st.wildcardMode ? 'Wildcard mode ON! 🃏' : 'Wildcard mode OFF', 'info');
+        wildcardMode = !!st.wildcardMode;
+        syncWildcardButton();
+        totalSpins = st.totalSpins;
+        completedTasks = st.completedTasks;
+        streakCount = st.streakCount;
+        spinHistory = (st.spinHistory || []).slice();
+        if (playersChanged || initial) renderChips();
+        updateUI();
+        updateOnlineBanner();
+
+        if (!prev) {
+          if (st.currentTask && st.lastSelectedPlayer) {
+            showRoomTask(st);
+          } else {
+            lastSelectedPlayer = null;
+            resultArea.classList.add('hidden');
+          }
+        } else if (sig.totalSpins > prev.totalSpins && st.lastSelectedPlayer) {
+          animateSpinTo(st.lastSelectedPlayer, () => {
+            playWinSound();
+            showRoomTask(st);
+            showToast(st.lastSelectedPlayer === room.you ? "You're up! 🎉" : `${st.lastSelectedPlayer} was selected! 🎉`, 'success');
+          });
+        } else if (sig.taskKey && sig.taskKey !== prev.taskKey) {
+          showRoomTask(st);
+        } else if (!sig.taskKey && prev.taskKey) {
+          stopTimer();
+          lastSelectedPlayer = null;
+          setTimeout(() => {
+            if (!lastSelectedPlayer) resultArea.classList.add('hidden');
+          }, 1500);
+        }
+
+        if (prev && sig.completedTasks > prev.completedTasks) {
+          spawnConfetti();
+          showToast('Task completed! 🔥', 'success');
+        }
+
+        const doubleModal = $('double-modal');
+        if (sig.doubleKey && (!prev || sig.doubleKey !== prev.doubleKey)) {
+          $('double-task').textContent = st.pendingDouble.task;
+          doubleModal.classList.remove('hidden');
+        } else if (!sig.doubleKey && prev && prev.doubleKey) {
+          doubleModal.classList.add('hidden');
+        }
+      }
+
+      async function pollRoom() {
+        if (!onlineRoom) return;
+        const roomId = onlineRoom.id;
+        try {
+          if (!actionInFlight) {
+            const data = await api(`/api/rooms/${roomId}`);
+            if (onlineRoom && onlineRoom.id === roomId) applyRoom(data.room);
+          }
+        } catch (err) {
+          if (err.status === 403 || err.status === 404) {
+            showToast(err.message, 'warning');
+            exitOnline();
+            return;
+          }
+          console.error(err);
+        }
+        if (onlineRoom && onlineRoom.id === roomId) {
+          roomPollTimer = setTimeout(pollRoom, document.hidden ? 6000 : 2000);
+        }
+      }
+
+      async function enterRoom(roomId) {
+        let data;
+        try {
+          data = await api(`/api/rooms/${roomId}`);
+        } catch (err) {
+          showToast(err.message, 'error');
+          return;
+        }
+        if (!onlineRoom) {
+          await flushProgressSave();
+          localSnapshot = {
+            items: items.slice(),
+            playerEmojis: { ...playerEmojis },
+            currentLevel,
+            wildcardMode,
+            spinHistory: spinHistory.slice(),
+          };
+        }
+        clearTimeout(roomPollTimer);
+        stopTimer();
+        $('online-modal').classList.add('hidden');
+        $('double-modal').classList.add('hidden');
+        setOnlineChrome(true);
+        applyRoom(data.room, true);
+        showToast('Joined the online game! 🌐', 'success');
+        roomPollTimer = setTimeout(pollRoom, 2000);
+      }
+
+      async function exitOnline() {
+        clearTimeout(roomPollTimer);
+        onlineRoom = null;
+        roomSig = null;
+        deferredRoom = null;
+        lastSelectedPlayer = null;
+        stopTimer();
+        resultArea.classList.add('hidden');
+        $('double-modal').classList.add('hidden');
+        setOnlineChrome(false);
+        if (localSnapshot) {
+          items = localSnapshot.items;
+          playerEmojis = localSnapshot.playerEmojis;
+          currentLevel = localSnapshot.currentLevel;
+          wildcardMode = localSnapshot.wildcardMode;
+          spinHistory = localSnapshot.spinHistory;
+          localSnapshot = null;
+        }
+        applyTheme(currentLevel);
+        syncLevelButtons();
+        syncWildcardButton();
+        renderChips();
+        updateUI();
+        refreshInvites();
+        try {
+          // Online games add to lifetime stats on the server, so reload them before local play resumes.
+          const data = await api('/api/profile');
+          setProfile(data.profile);
+          applyProfileStats(data.profile.stats || {});
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function sendRoomAction(action) {
+        if (!onlineRoom || actionInFlight) return;
+        if (action.type === 'spin' && (spinning || items.length < 2)) return;
+        actionInFlight = true;
+        if (action.type === 'spin') spinBtn.disabled = true;
+        const roomId = onlineRoom.id;
+        try {
+          const data = await api(`/api/rooms/${roomId}`, { method: 'POST', body: JSON.stringify(action) });
+          if (data.left) return;
+          if (onlineRoom && onlineRoom.id === roomId) applyRoom(data.room);
+        } catch (err) {
+          showToast(err.message, 'warning');
+        } finally {
+          actionInFlight = false;
+          updateUI();
+        }
+      }
+
+      $('online-exit').addEventListener('click', () => {
+        playClickSound();
+        exitOnline();
+        showToast('Back to playing on this device. Your online game is still in Play Online. 🏠', 'info');
+      });
+
+      $('online-leave').addEventListener('click', async () => {
+        playClickSound();
+        if (!onlineRoom) return;
+        if (!confirm('Leave this online game? You will need a new invite to rejoin.')) return;
+        await sendRoomAction({ type: 'leave' });
+        exitOnline();
+        showToast('You left the online game.', 'info');
       });
 
       // ----- INITIALIZATION -----
@@ -2108,7 +3056,7 @@
         console.log('🏆 Achievement system active!');
         console.log('🔊 Sound effects ready!');
         
-        setTimeout(() => showToast('Welcome! Add players and spin! 🎯', 'info'), 2000);
+        bootAccount();
       }
 
       // Start the app
