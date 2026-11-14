@@ -1,7 +1,15 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { communityTasks, playerProfiles } from "../db/schema.js";
-import { isPrivacySensitiveTask, tasks, wildcardTasks, type TaskLevel, type TaskType } from "./tasks.js";
+import { communityTasks, playerProfiles, userCustomTasks } from "../db/schema.js";
+import {
+  isPrivacySensitiveTask,
+  tasks,
+  themedTasks,
+  wildcardTasks,
+  type TaskLevel,
+  type TaskTheme,
+  type TaskType,
+} from "./tasks.js";
 import { defaultStats, type PlayerStats } from "./profile.js";
 
 export type RoomPlayer = { userId: string; displayName: string };
@@ -19,6 +27,8 @@ export type SpinHistoryEntry = {
 export type RoomState = {
   items: string[];
   level: TaskLevel;
+  theme?: TaskTheme;
+  includeCustomTasks?: boolean;
   boundaries?: RoomBoundaries;
   wildcardMode: boolean;
   lastSelectedPlayer: string | null;
@@ -35,6 +45,8 @@ export function initialRoomState(players: RoomPlayer[]): RoomState {
   return {
     items: players.map((p) => p.displayName),
     level: "child",
+    theme: "classic",
+    includeCustomTasks: false,
     boundaries: { privacy: true },
     wildcardMode: false,
     lastSelectedPlayer: null,
@@ -56,14 +68,31 @@ async function loadCommunityTasksFor(level: TaskLevel, type: TaskType) {
   return rows.filter((r) => r.type === type).map((r) => r.prompt);
 }
 
-export async function pickTask(state: RoomState): Promise<{ task: string; type: TaskType }> {
+export async function pickTask(state: RoomState, ownerUserId?: string): Promise<{ task: string; type: TaskType }> {
   const type: TaskType = Math.random() < 0.5 ? "truth" : "dare";
-  const poolKey = state.wildcardMode ? "wildcard" : state.level;
+  const theme = state.theme ?? "classic";
+  const includeCustomTasks = state.includeCustomTasks ?? false;
+  const poolKey = state.wildcardMode ? "wildcard" : `${state.level}:${theme}:${includeCustomTasks}`;
   let pool: string[] = state.wildcardMode ? wildcardTasks[type] : tasks[state.level][type];
 
   if (!state.wildcardMode) {
     const community = await loadCommunityTasksFor(state.level, type);
-    pool = [...pool, ...community];
+    pool = [
+      ...pool,
+      ...(theme === "classic" ? [] : themedTasks[theme][state.level][type]),
+      ...community,
+    ];
+    if (includeCustomTasks && ownerUserId) {
+      const custom = await db
+        .select({ prompt: userCustomTasks.prompt })
+        .from(userCustomTasks)
+        .where(and(
+          eq(userCustomTasks.userId, ownerUserId),
+          eq(userCustomTasks.level, state.level),
+          eq(userCustomTasks.type, type),
+        ));
+      pool.push(...custom.map((row) => row.prompt));
+    }
   }
   if (state.boundaries?.privacy ?? true) {
     pool = pool.filter((task) => !isPrivacySensitiveTask(task));

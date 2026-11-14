@@ -867,7 +867,10 @@
       </div>
       <div class="flex items-center gap-2">
         <button id="add-task-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
-          <span>➕</span> Task
+          <span>🌐</span> Community task
+        </button>
+        <button id="my-deck-btn" type="button" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
+          <span>🗂️</span> My deck
         </button>
         <button id="history-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">📋</button>
         <button id="music-toggle" type="button" aria-expanded="false" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Open theme music">🎵 Music</button>
@@ -909,6 +912,19 @@
       </button>
       <button data-level="dirty" class="level-btn px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-bold bg-white/10 hover:bg-white/20 transition flex items-center gap-2 border-2 border-transparent">
         🌶️ Dirty <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full ml-1">18+</span>
+      </button>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-6 sm:mb-8">
+      <label for="prompt-theme-select" class="text-sm font-bold">Prompt pack</label>
+      <select id="prompt-theme-select" class="frost-panel rounded-full px-4 py-2 text-sm bg-slate-900/80 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400">
+        <option value="classic">Classic</option>
+        <option value="road_trip">🚗 Road Trip</option>
+        <option value="music">🎵 Music</option>
+        <option value="aeinz_sooth">🔥 Aeinz Sooth</option>
+      </select>
+      <button id="custom-deck-toggle" type="button" aria-pressed="false" class="frost-panel rounded-full px-4 py-2 text-sm font-bold hover:bg-white/20 transition">
+        My prompts: Off
       </button>
     </div>
 
@@ -1154,6 +1170,47 @@
         </button>
       </form>
       <p id="community-task-count" class="text-center text-xs text-white/60 mt-4">Loading community tasks...</p>
+    </div>
+  </div>
+
+  <div id="my-deck-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="flex justify-between items-start gap-4 mb-4">
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-amber-400">🗂️ My Prompt Deck</h3>
+          <p id="my-deck-description" class="text-sm text-white/70 mt-1">Your prompts are private to your account. In an online room, only the host can choose to share this deck.</p>
+        </div>
+        <button id="close-my-deck" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close prompt deck">&times;</button>
+      </div>
+      <form id="my-deck-form" class="space-y-3 mb-5">
+        <label for="my-deck-prompt" class="block text-sm font-bold text-white">Add a prompt to your private deck</label>
+        <textarea id="my-deck-prompt" maxlength="240" required rows="3" placeholder="Write a fun, comfortable truth or dare..." class="w-full rounded-2xl px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition resize-none"></textarea>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="text-sm font-bold text-white">Type
+            <select id="my-deck-type" class="mt-1 w-full rounded-full px-4 py-3 bg-slate-900/80 border border-white/20 text-white">
+              <option value="truth">💬 Truth</option>
+              <option value="dare">⚡ Dare</option>
+            </select>
+          </label>
+          <label class="text-sm font-bold text-white">Level
+            <select id="my-deck-level" class="mt-1 w-full rounded-full px-4 py-3 bg-slate-900/80 border border-white/20 text-white">
+              <option value="child">🧸 Child</option>
+              <option value="pleasing">😇 Pleasing</option>
+              <option value="dirty">🌶️ Dirty 18+</option>
+            </select>
+          </label>
+        </div>
+        <p id="my-deck-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2" role="alert"></p>
+        <div class="flex gap-2">
+          <button id="my-deck-save" type="submit" class="flex-1 rounded-full px-6 py-3 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black disabled:opacity-60">Save to my account</button>
+          <button id="cancel-my-deck-edit" type="button" class="hidden rounded-full px-4 py-3 font-bold bg-white/10 border border-white/20 text-white">Cancel</button>
+        </div>
+      </form>
+      <div class="flex justify-between items-center gap-2 mb-2">
+        <h4 class="font-black text-white">Saved prompts</h4>
+        <span id="my-deck-count" class="text-xs text-white/60">0 / 200</span>
+      </div>
+      <div id="my-deck-list" class="max-h-64 overflow-y-auto space-y-2" aria-live="polite"></div>
     </div>
   </div>
 
@@ -1444,6 +1501,9 @@
       let spinning = false;
       let currentRotation = 0;
       let currentLevel = 'child';
+      let currentPromptTheme = 'classic';
+      let includeCustomTasks = false;
+      let myCustomTasks = [];
       let lastSelectedPlayer = null;
       let streakCount = 0;
       let totalSpins = 0;
@@ -1623,6 +1683,123 @@
         }
       };
 
+      const themedTasks = {
+        road_trip: {
+          child: {
+            truth: [
+              "If you could plan a road trip anywhere, where would you go first?",
+              "What snack would you bring for everyone to share on a trip?",
+              "Which player would be the best at spotting interesting things along the way?"
+            ],
+            dare: [
+              "Mime packing a suitcase for a trip in ten seconds.",
+              "Make up a silly travel slogan for the group.",
+              "Name three things you would bring on a pretend adventure before the group counts to five."
+            ]
+          },
+          pleasing: {
+            truth: [
+              "Which player would you choose as your travel buddy, and what would make the trip fun?",
+              "What is one place you would love to explore with friends?",
+              "What is your funniest travel mix-up or day-out story?"
+            ],
+            dare: [
+              "Give a cheerful tour-guide introduction to the room for 20 seconds.",
+              "Act out your reaction to realizing you packed for the wrong weather.",
+              "Invent a three-step dance for arriving at your dream destination."
+            ]
+          },
+          dirty: {
+            truth: [
+              "Which player would make the most charming travel companion, and why?",
+              "What is your idea of a perfect adults-only getaway?",
+              "What is the boldest spontaneous trip you would actually feel comfortable taking?"
+            ],
+            dare: [
+              "Give the group a confident, flirtatious pitch for your dream getaway.",
+              "Strike three dramatic holiday-photo poses; you can pass on any pose.",
+              "Deliver a playful one-line travel invitation to someone in the group, with their consent."
+            ]
+          }
+        },
+        music: {
+          child: {
+            truth: [
+              "What kind of song always makes you want to move?",
+              "If your day had a theme tune, what would it sound like?",
+              "Which player would you pick to make up a silly group song?"
+            ],
+            dare: [
+              "Hum a made-up tune and let the group guess its mood.",
+              "Do a tiny dance like a friendly music robot.",
+              "Invent a band name using two words chosen by the group."
+            ]
+          },
+          pleasing: {
+            truth: [
+              "What song brings back a happy memory for you?",
+              "What music would you choose for a celebration with this group?",
+              "Which player would you trust to create the best party playlist?"
+            ],
+            dare: [
+              "Perform a dramatic silent music video for 15 seconds.",
+              "Make up a short chorus about the group without using anyone's private information.",
+              "Conduct an imaginary orchestra through a big finish."
+            ]
+          },
+          dirty: {
+            truth: [
+              "What song would you choose for a confident entrance?",
+              "Which player has the most captivating music taste, and what do you like about it?",
+              "What kind of music would set the mood for your ideal date?"
+            ],
+            dare: [
+              "Give a playful, confident lip-sync performance to a song you choose.",
+              "Dedicate an imaginary award-show song to someone in the room, if they're comfortable.",
+              "Show off a dance move that makes you feel irresistible; passing is always okay."
+            ]
+          }
+        },
+        aeinz_sooth: {
+          child: {
+            truth: [
+              "What is one fun thing you would try if you knew your friends would cheer you on?",
+              "What silly talent would you show off if you had no reason to feel shy?",
+              "Which player brings the boldest, happiest energy to the group?"
+            ],
+            dare: [
+              "Strike your biggest superhero pose and let the group cheer.",
+              "Give a 10-second speech about why your favorite snack deserves an award.",
+              "Choose a silly dance move and invite the group to copy it; anyone may pass."
+            ]
+          },
+          pleasing: {
+            truth: [
+              "What is something bold you would like to try when the moment feels right?",
+              "When have you surprised yourself by being more confident than you expected?",
+              "What is one harmless rule you would invent for a night of pure fun?"
+            ],
+            dare: [
+              "Give a confident 15-second pep talk to the whole group.",
+              "Show a bold pose that makes you feel proud of yourself.",
+              "Choose a playful challenge for the group that everyone can comfortably pass on."
+            ]
+          },
+          dirty: {
+            truth: [
+              "What confident side of yourself do you wish people saw more often?",
+              "What is one daring but comfortable experience you would like to have?",
+              "What kind of bold compliment makes you feel most appreciated?"
+            ],
+            dare: [
+              "Give your most charismatic introduction as if arriving at a glamorous party.",
+              "Share a confident compliment with someone who welcomes it.",
+              "Do a dramatic runway walk or choose a pose instead; either option counts."
+            ]
+          }
+        }
+      };
+
       const wildcardTasks = {
         truth: [
           "If you had to marry someone in this room, who and why?",
@@ -1673,6 +1850,7 @@
       ];
 
       // ----- DOM ELEMENTS -----
+      const $ = id => document.getElementById(id);
       const canvas = document.getElementById('wheel-canvas');
       const ctx = canvas.getContext('2d');
       const chipsEl = document.getElementById('chips');
@@ -1711,9 +1889,47 @@
         }
       }
 
+      async function loadMyCustomTasks() {
+        try {
+          const data = await api('/api/my-tasks');
+          myCustomTasks = Array.isArray(data.tasks) ? data.tasks : [];
+          renderMyDeck();
+          syncPromptControls();
+        } catch (error) {
+          myCustomTasks = [];
+          renderMyDeck();
+          syncPromptControls();
+          console.error('Could not load your saved prompts.', error);
+          showToast('Your saved prompt deck could not be loaded. You can still play with the built-in prompts.', 'warning');
+        }
+      }
+
       // ----- FUNCTIONS -----
       function escapeHtml(value) {
         return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+      }
+
+      function renderMyDeck() {
+        const list = $('my-deck-list');
+        if (!list) return;
+        $('my-deck-count').textContent = `${myCustomTasks.length} / 200`;
+        $('my-deck-save').disabled = myCustomTasks.length >= 200 && editingMyTaskId === null;
+        if (!myCustomTasks.length) {
+          list.textContent = 'Your deck is empty. Add a prompt above to use it in offline play or share it as the online room host.';
+          return;
+        }
+        list.innerHTML = myCustomTasks.map(task => `
+          <div class="rounded-xl bg-white/5 border border-white/10 p-3 flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm text-white break-words">${escapeHtml(task.prompt)}</p>
+              <p class="text-xs text-white/55 mt-1">${escapeHtml(task.type)} · ${escapeHtml(task.level)}</p>
+            </div>
+            <div class="flex shrink-0 gap-1">
+              <button type="button" class="edit-my-task rounded-full px-3 py-1 text-xs font-bold bg-white/10 text-white hover:bg-white/20" data-task-id="${Number(task.id)}">Edit</button>
+              <button type="button" class="delete-my-task rounded-full px-3 py-1 text-xs font-bold bg-red-500/20 text-red-200 hover:bg-red-500/40" data-task-id="${Number(task.id)}">Remove</button>
+            </div>
+          </div>
+        `).join('');
       }
 
       function getActiveColors() {
@@ -1835,12 +2051,19 @@
 
       function getRandomTask() {
         const coinFlip = Math.random() < 0.5 ? 'truth' : 'dare';
-        let poolKey = wildcardMode ? 'wildcard' : currentLevel;
+        let poolKey = wildcardMode ? 'wildcard' : `${currentLevel}:${currentPromptTheme}:${includeCustomTasks}`;
         let pool = wildcardMode ? wildcardTasks : tasks[currentLevel];
         let taskList = pool[coinFlip] || pool.truth;
 
         if (!wildcardMode) {
-          taskList = [...taskList, ...communityTasks[currentLevel][coinFlip]];
+          taskList = [
+            ...taskList,
+            ...(currentPromptTheme === 'classic' ? [] : themedTasks[currentPromptTheme][currentLevel][coinFlip]),
+            ...communityTasks[currentLevel][coinFlip],
+            ...(includeCustomTasks
+              ? myCustomTasks.filter(task => task.level === currentLevel && task.type === coinFlip).map(task => task.prompt)
+              : [])
+          ];
         }
         if (boundaries.privacy) {
           taskList = taskList.filter(task => !isPrivacySensitiveTask(task));
@@ -2253,13 +2476,7 @@
         playClickSound();
         if (onlineRoom) return sendRoomAction({ type: 'toggle_wildcard', enabled: !wildcardMode });
         wildcardMode = !wildcardMode;
-        const wildcardBtn = document.getElementById('wildcard-btn');
-        
-        if (wildcardMode) {
-          wildcardBtn.style.background = 'rgba(168, 85, 247, 0.3)';
-        } else {
-          wildcardBtn.style.background = '';
-        }
+        syncWildcardButton();
         
         if (lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
           displayAutoTask();
@@ -2561,6 +2778,149 @@
         }
       });
 
+      const myDeckModal = $('my-deck-modal');
+      const myDeckForm = $('my-deck-form');
+      const myDeckPrompt = $('my-deck-prompt');
+      const myDeckError = $('my-deck-error');
+      let editingMyTaskId = null;
+
+      function resetMyDeckForm() {
+        editingMyTaskId = null;
+        myDeckForm.reset();
+        $('my-deck-level').value = currentLevel;
+        $('my-deck-save').textContent = 'Save to my account';
+        $('cancel-my-deck-edit').classList.add('hidden');
+      }
+
+      $('my-deck-btn').addEventListener('click', () => {
+        playClickSound();
+        if (!profile) {
+          showAuth('login');
+          return;
+        }
+        $('my-deck-level').value = currentLevel;
+        $('my-deck-description').textContent = onlineRoom
+          ? 'Your prompts are private to your account. Only the room host can enable this deck for everyone in the room.'
+          : 'Your prompts are private to your account and can be used in offline play or shared by you as an online room host.';
+        myDeckError.classList.add('hidden');
+        myDeckModal.classList.remove('hidden');
+        setTimeout(() => myDeckPrompt.focus(), 50);
+      });
+
+      $('close-my-deck').addEventListener('click', () => {
+        resetMyDeckForm();
+        myDeckModal.classList.add('hidden');
+      });
+      $('cancel-my-deck-edit').addEventListener('click', resetMyDeckForm);
+      myDeckPrompt.addEventListener('input', () => myDeckError.classList.add('hidden'));
+
+      myDeckForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        myDeckError.classList.add('hidden');
+        const saveButton = $('my-deck-save');
+        const updatingId = editingMyTaskId;
+        saveButton.disabled = true;
+        saveButton.textContent = updatingId === null ? 'Saving...' : 'Updating...';
+        try {
+          const data = await api(
+            `/api/my-tasks${updatingId === null ? '' : `?taskId=${encodeURIComponent(updatingId)}`}`,
+            {
+            method: updatingId === null ? 'POST' : 'PATCH',
+            body: JSON.stringify({
+              prompt: myDeckPrompt.value.trim(),
+              type: $('my-deck-type').value,
+              level: $('my-deck-level').value,
+            }),
+            },
+          );
+          if (updatingId === null) {
+            myCustomTasks.unshift(data.task);
+          } else {
+            myCustomTasks = myCustomTasks.map(task => task.id === data.task.id ? data.task : task);
+          }
+          resetMyDeckForm();
+          renderMyDeck();
+          syncPromptControls();
+          showToast(updatingId === null ? 'Saved to your private prompt deck.' : 'Prompt updated.', 'success');
+        } catch (error) {
+          myDeckError.textContent = error.message;
+          myDeckError.classList.remove('hidden');
+        } finally {
+          if (editingMyTaskId === null) saveButton.textContent = 'Save to my account';
+          saveButton.disabled = myCustomTasks.length >= 200 && editingMyTaskId === null;
+        }
+      });
+
+      $('my-deck-list').addEventListener('click', async event => {
+        const target = event.target;
+        const button = target instanceof Element ? target.closest('button') : null;
+        if (!button) return;
+        const taskId = Number(button.dataset.taskId);
+        if (button.classList.contains('edit-my-task')) {
+          const task = myCustomTasks.find(item => item.id === taskId);
+          if (!task) return;
+          editingMyTaskId = task.id;
+          myDeckPrompt.value = task.prompt;
+          $('my-deck-type').value = task.type;
+          $('my-deck-level').value = task.level;
+          $('my-deck-save').textContent = 'Update prompt';
+          $('my-deck-save').disabled = false;
+          $('cancel-my-deck-edit').classList.remove('hidden');
+          myDeckError.classList.add('hidden');
+          myDeckPrompt.focus();
+          return;
+        }
+        if (!button.classList.contains('delete-my-task')) return;
+        button.disabled = true;
+        try {
+          await api(`/api/my-tasks?taskId=${encodeURIComponent(button.dataset.taskId)}`, { method: 'DELETE' });
+          myCustomTasks = myCustomTasks.filter(task => String(task.id) !== button.dataset.taskId);
+          if (editingMyTaskId === taskId) resetMyDeckForm();
+          renderMyDeck();
+          syncPromptControls();
+          showToast('Prompt removed from your deck.', 'info');
+        } catch (error) {
+          button.disabled = false;
+          showToast(error.message, 'error');
+        }
+      });
+
+      $('prompt-theme-select').addEventListener('change', event => {
+        const theme = event.target.value;
+        if (onlineRoom) {
+          sendRoomAction({ type: 'set_theme', theme });
+          return;
+        }
+        currentPromptTheme = theme;
+        syncPromptControls();
+        if (lastSelectedPlayer) displayAutoTask();
+      });
+
+      $('custom-deck-toggle').addEventListener('click', () => {
+        if (onlineRoom) {
+          if (!onlineRoom.isHost) {
+            showToast('Only the room host can enable their saved prompts.', 'info');
+            return;
+          }
+          const enabled = !onlineRoom.state.includeCustomTasks;
+          if (enabled && myCustomTasks.length === 0) {
+            showToast('Add prompts to your deck before sharing it with the room.', 'info');
+            $('my-deck-btn').click();
+            return;
+          }
+          sendRoomAction({ type: 'toggle_custom_tasks', enabled });
+          return;
+        }
+        if (!includeCustomTasks && myCustomTasks.length === 0) {
+          showToast('Add prompts to your deck before including it in play.', 'info');
+          $('my-deck-btn').click();
+          return;
+        }
+        includeCustomTasks = !includeCustomTasks;
+        syncPromptControls();
+        if (lastSelectedPlayer) displayAutoTask();
+      });
+
       // History modal
       document.getElementById('history-btn').addEventListener('click', showFullHistory);
       document.getElementById('close-history').addEventListener('click', () => {
@@ -2632,8 +2992,6 @@
       let openOnlineAfterTutorial = false;
       let reconnectAttempts = 0;
       let roomConnectionState = 'connected';
-
-      const $ = id => document.getElementById(id);
 
       async function api(path, options = {}) {
         const res = await fetch(path, {
@@ -2971,6 +3329,7 @@
         offlineMode = false;
         sessionMode = null;
         setProfile(data.profile);
+        await loadMyCustomTasks();
         applyProfileStats(data.profile.stats || {});
         $('auth-modal').classList.add('hidden');
         $('account-bar').classList.remove('hidden');
@@ -3689,6 +4048,26 @@
 
       function syncWildcardButton() {
         $('wildcard-btn').style.background = wildcardMode ? 'rgba(168, 85, 247, 0.3)' : '';
+        syncPromptControls();
+      }
+
+      function syncPromptControls() {
+        const theme = onlineRoom ? (onlineRoom.state.theme || 'classic') : currentPromptTheme;
+        const enabled = onlineRoom ? !!onlineRoom.state.includeCustomTasks : includeCustomTasks;
+        const toggle = $('custom-deck-toggle');
+        const themeSelect = $('prompt-theme-select');
+        themeSelect.value = theme;
+        themeSelect.disabled = wildcardMode;
+        toggle.textContent = `${onlineRoom ? 'Host deck' : 'My prompts'}: ${enabled ? 'On' : 'Off'}${wildcardMode ? ' · paused in Wild' : ''}`;
+        toggle.setAttribute('aria-pressed', String(enabled));
+        toggle.disabled = wildcardMode || Boolean(onlineRoom && !onlineRoom.isHost);
+        toggle.title = wildcardMode
+          ? 'Prompt packs and saved prompts are paused while Wild mode is active.'
+          : onlineRoom
+          ? 'Only the room host can share their saved prompt deck with everyone.'
+          : 'Include your account-saved prompts in this session.';
+        themeSelect.title = wildcardMode ? 'Prompt packs are paused while Wild mode is active.' : 'Mix this prompt pack into the selected level.';
+        toggle.style.background = enabled ? 'rgba(16, 185, 129, 0.28)' : '';
       }
 
       function updateOnlineBanner() {
@@ -3773,12 +4152,15 @@
 
         const playersChanged = items.join('\u0000') !== st.items.join('\u0000');
         items = st.items.slice();
+        currentPromptTheme = st.theme || 'classic';
+        includeCustomTasks = !!st.includeCustomTasks;
         if (currentLevel !== st.level) {
           currentLevel = st.level;
           applyTheme(currentLevel);
           if (prev) showToast(`Level changed to ${currentLevel === 'child' ? "Child's Play" : currentLevel === 'pleasing' ? 'Pleasing' : 'Dirty & Flirty'}`, 'info');
         }
         syncLevelButtons();
+        syncPromptControls();
         if (wildcardMode !== !!st.wildcardMode && prev) showToast(st.wildcardMode ? 'Wildcard mode ON! 🃏' : 'Wildcard mode OFF', 'info');
         wildcardMode = !!st.wildcardMode;
         syncWildcardButton();
@@ -3894,6 +4276,8 @@
             items: items.slice(),
             playerEmojis: { ...playerEmojis },
             currentLevel,
+            currentPromptTheme,
+            includeCustomTasks,
             wildcardMode,
             boundaries: { ...boundaries },
             spinHistory: spinHistory.slice(),
@@ -3937,6 +4321,8 @@
           items = localSnapshot.items;
           playerEmojis = localSnapshot.playerEmojis;
           currentLevel = localSnapshot.currentLevel;
+          currentPromptTheme = localSnapshot.currentPromptTheme;
+          includeCustomTasks = localSnapshot.includeCustomTasks;
           wildcardMode = localSnapshot.wildcardMode;
           boundaries = localSnapshot.boundaries;
           spinHistory = localSnapshot.spinHistory;
@@ -3944,6 +4330,7 @@
         }
         applyTheme(currentLevel);
         syncLevelButtons();
+        syncPromptControls();
         syncWildcardButton();
         syncBoundaryControl();
         renderChips();

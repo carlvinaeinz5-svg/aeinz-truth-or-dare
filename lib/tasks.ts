@@ -1,5 +1,130 @@
 export type TaskLevel = "child" | "pleasing" | "dirty";
 export type TaskType = "truth" | "dare";
+export type TaskTheme = "classic" | "road_trip" | "music" | "aeinz_sooth";
+
+export const taskThemeLabels: Record<TaskTheme, string> = {
+  classic: "Classic",
+  road_trip: "Road Trip",
+  music: "Music",
+  aeinz_sooth: "Aeinz Sooth",
+};
+
+export const themedTasks: Record<Exclude<TaskTheme, "classic">, Record<TaskLevel, Record<TaskType, string[]>>> = {
+  road_trip: {
+    child: {
+      truth: [
+        "If you could plan a road trip anywhere, where would you go first?",
+        "What snack would you bring for everyone to share on a trip?",
+        "Which player would be the best at spotting interesting things along the way?",
+      ],
+      dare: [
+        "Mime packing a suitcase for a trip in ten seconds.",
+        "Make up a silly travel slogan for the group.",
+        "Name three things you would bring on a pretend adventure before the group counts to five.",
+      ],
+    },
+    pleasing: {
+      truth: [
+        "Which player would you choose as your travel buddy, and what would make the trip fun?",
+        "What is one place you would love to explore with friends?",
+        "What is your funniest travel mix-up or day-out story?",
+      ],
+      dare: [
+        "Give a cheerful tour-guide introduction to the room for 20 seconds.",
+        "Act out your reaction to realizing you packed for the wrong weather.",
+        "Invent a three-step dance for arriving at your dream destination.",
+      ],
+    },
+    dirty: {
+      truth: [
+        "Which player would make the most charming travel companion, and why?",
+        "What is your idea of a perfect adults-only getaway?",
+        "What is the boldest spontaneous trip you would actually feel comfortable taking?",
+      ],
+      dare: [
+        "Give the group a confident, flirtatious pitch for your dream getaway.",
+        "Strike three dramatic holiday-photo poses; you can pass on any pose.",
+        "Deliver a playful one-line travel invitation to someone in the group, with their consent.",
+      ],
+    },
+  },
+  music: {
+    child: {
+      truth: [
+        "What kind of song always makes you want to move?",
+        "If your day had a theme tune, what would it sound like?",
+        "Which player would you pick to make up a silly group song?",
+      ],
+      dare: [
+        "Hum a made-up tune and let the group guess its mood.",
+        "Do a tiny dance like a friendly music robot.",
+        "Invent a band name using two words chosen by the group.",
+      ],
+    },
+    pleasing: {
+      truth: [
+        "What song brings back a happy memory for you?",
+        "What music would you choose for a celebration with this group?",
+        "Which player would you trust to create the best party playlist?",
+      ],
+      dare: [
+        "Perform a dramatic silent music video for 15 seconds.",
+        "Make up a short chorus about the group without using anyone's private information.",
+        "Conduct an imaginary orchestra through a big finish.",
+      ],
+    },
+    dirty: {
+      truth: [
+        "What song would you choose for a confident entrance?",
+        "Which player has the most captivating music taste, and what do you like about it?",
+        "What kind of music would set the mood for your ideal date?",
+      ],
+      dare: [
+        "Give a playful, confident lip-sync performance to a song you choose.",
+        "Dedicate an imaginary award-show song to someone in the room, if they're comfortable.",
+        "Show off a dance move that makes you feel irresistible; passing is always okay.",
+      ],
+    },
+  },
+  aeinz_sooth: {
+    child: {
+      truth: [
+        "What is one fun thing you would try if you knew your friends would cheer you on?",
+        "What silly talent would you show off if you had no reason to feel shy?",
+        "Which player brings the boldest, happiest energy to the group?",
+      ],
+      dare: [
+        "Strike your biggest superhero pose and let the group cheer.",
+        "Give a 10-second speech about why your favorite snack deserves an award.",
+        "Choose a silly dance move and invite the group to copy it; anyone may pass.",
+      ],
+    },
+    pleasing: {
+      truth: [
+        "What is something bold you would like to try when the moment feels right?",
+        "When have you surprised yourself by being more confident than you expected?",
+        "What is one harmless rule you would invent for a night of pure fun?",
+      ],
+      dare: [
+        "Give a confident 15-second pep talk to the whole group.",
+        "Show a bold pose that makes you feel proud of yourself.",
+        "Choose a playful challenge for the group that everyone can comfortably pass on.",
+      ],
+    },
+    dirty: {
+      truth: [
+        "What confident side of yourself do you wish people saw more often?",
+        "What is one daring but comfortable experience you would like to have?",
+        "What kind of bold compliment makes you feel most appreciated?",
+      ],
+      dare: [
+        "Give your most charismatic introduction as if arriving at a glamorous party.",
+        "Share a confident compliment with someone who welcomes it.",
+        "Do a dramatic runway walk or choose a pose instead; either option counts.",
+      ],
+    },
+  },
+};
 
 const PRIVACY_PROMPT_PATTERN =
   /\b(?:phone|mobile|social media|search history|photo gallery|profile picture|private messages?|text message|last text|text you (?:received|sent)|call (?:a friend|your crush)|contact(?:ing)? (?:someone|other people|a friend)|send(?:ing)? (?:a|one|someone)? ?(?:message|text)|post(?:ing)? (?:a|your) (?:funny )?selfie|scroll through your)\b/i;

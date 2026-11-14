@@ -13,6 +13,18 @@ export const communityTasks = pgTable("community_tasks", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const userCustomTasks = pgTable("user_custom_tasks", {
+  id: serial().primaryKey(),
+  userId: text("user_id").notNull(),
+  prompt: text().notNull(),
+  type: taskType().notNull(),
+  level: taskLevel().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userLevelTypeIdx: index("user_custom_tasks_user_level_type_idx").on(table.userId, table.level, table.type),
+  uniquePromptIdx: uniqueIndex("user_custom_tasks_user_prompt_idx").on(table.userId, table.level, table.type, table.prompt),
+}));
+
 export const playerProfiles = pgTable("player_profiles", {
   id: serial().primaryKey(),
   userId: text("user_id").notNull(),
