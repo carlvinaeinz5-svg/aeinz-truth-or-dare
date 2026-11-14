@@ -702,6 +702,11 @@
       </div>
     </div>
 
+    <div id="offline-bar" class="hidden frost-panel mb-4 flex flex-wrap items-center justify-between gap-2">
+      <p class="text-sm font-bold">Playing offline on this device · progress isn't synced</p>
+      <button id="offline-login-btn" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-white/10 border border-white/30 hover:bg-white/20">Sign in for online play</button>
+    </div>
+
     <!-- Online Game Banner -->
     <div id="online-banner" class="hidden frost-panel mb-4 flex flex-wrap items-center justify-between gap-3" style="border: 2px solid rgba(52,211,153,0.6);">
       <div class="flex items-center gap-3 min-w-0">
@@ -715,12 +720,52 @@
         </div>
       </div>
       <div class="flex gap-2">
+        <button id="online-chat-toggle" aria-expanded="false" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/30 transition">💬 Chat</button>
         <button id="online-invite-more" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/30 transition">➕ Invite</button>
         <button id="online-exit" class="rounded-full px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 border border-white/30 transition" title="Go back to playing on this device. You keep your seat in the online game.">🏠 Local</button>
         <button id="online-leave" class="rounded-full px-3 py-1.5 text-xs font-bold bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 transition">Leave game</button>
       </div>
     </div>
     
+    <section id="room-chat-panel" class="hidden frost-panel mb-4" aria-label="Online room chat">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h2 class="text-lg font-black">💬 Room chat</h2>
+          <p class="text-xs opacity-70">Only players in this game can see chat. Photos and videos can be opened once per player, expire after 24 hours, and are removed when the game ends. A player may still capture what they see.</p>
+        </div>
+        <button id="close-room-chat" type="button" class="rounded-full px-3 py-1 text-sm bg-white/10 hover:bg-white/20" aria-label="Close room chat">Close</button>
+      </div>
+      <p id="room-chat-error" class="hidden text-sm font-bold text-red-200 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2 mb-3" role="alert"></p>
+      <div id="room-chat-messages" class="max-h-64 overflow-y-auto space-y-2 rounded-xl bg-black/10 p-2 mb-3" role="log" aria-live="polite"></div>
+      <form id="room-chat-form" class="flex gap-2 mb-3">
+        <input id="room-chat-input" type="text" maxlength="500" autocomplete="off" aria-label="Write a chat message" placeholder="Write a message..." class="flex-1 min-w-0 rounded-full px-4 py-2.5 bg-white/10 border border-white/20 text-white placeholder-white/50 outline-none focus:ring-2 focus:ring-emerald-300">
+        <button id="room-chat-send" type="submit" class="rounded-full px-4 py-2.5 text-sm font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-black">Send</button>
+      </form>
+      <div class="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3">
+        <button id="voice-record-start" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20">🎙 Record voice note</button>
+        <button id="voice-record-stop" type="button" class="hidden rounded-full px-4 py-2 text-sm font-bold bg-amber-400 text-black">Stop recording</button>
+        <span id="voice-record-status" class="text-xs opacity-75" role="status"></span>
+      </div>
+      <div id="voice-preview-row" class="hidden flex-wrap items-center gap-2 mt-3">
+        <audio id="voice-preview" controls class="max-w-full"></audio>
+        <button id="voice-send" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-emerald-400 text-black">Send voice note</button>
+        <button id="voice-discard" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20">Discard</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 mt-3">
+        <input id="room-media-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" class="hidden">
+        <button id="room-media-select" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20">🖼️ Share photo/video</button>
+        <span class="text-xs opacity-70">Up to 5 MB per file</span>
+      </div>
+      <div id="room-media-preview-row" class="hidden mt-3 rounded-xl bg-white/5 border border-white/10 p-3">
+        <p id="room-media-file-name" class="text-sm font-bold mb-2 break-all"></p>
+        <div id="room-media-preview" class="max-h-56 overflow-hidden rounded-lg mb-3"></div>
+        <div class="flex gap-2">
+          <button id="room-media-send" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-emerald-400 text-black">Send view-once</button>
+          <button id="room-media-discard" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20">Discard</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Active Level Badge -->
     <div class="flex justify-center mb-4 sm:mb-6">
       <div id="active-level-display" class="rounded-full px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-bold flex items-center gap-2 shadow-xl" style="background: linear-gradient(135deg, #ff8f00, #ffa000); color: #fff; font-family: 'Fredoka One', cursive;">
@@ -768,6 +813,9 @@
         </button>
         <button id="wildcard-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm flex items-center gap-1 hover:bg-white/20 transition">
           <span>🃏</span> Wild
+        </button>
+        <button id="boundaries-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm flex items-center gap-1 hover:bg-white/20 transition">
+          <span>🛡️</span> Boundaries
         </button>
       </div>
       <div class="flex items-center gap-2">
@@ -939,7 +987,7 @@
                       🎲 Double
                     </button>
                     <button id="reroll-btn" class="text-xs bg-white/10 hover:bg-white/20 border border-white/30 rounded-full px-3 py-1.5 transition">
-                      🔁 Re-roll
+                      ↪ Pass · new prompt
                     </button>
                   </div>
                 </div>
@@ -969,6 +1017,25 @@
       <button id="export-history" class="w-full rounded-full px-5 py-2.5 font-bold bg-amber-500/20 border border-amber-400/40 hover:bg-amber-500/30 transition text-sm text-white">
         📥 Export History
       </button>
+    </div>
+  </div>
+
+  <div id="boundaries-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="flex justify-between items-start gap-4 mb-4">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white">🛡️ Group boundaries</h3>
+          <p class="text-sm text-white/70 mt-1">Filtered prompts won't be offered. Anyone can still pass on any prompt without a penalty.</p>
+        </div>
+        <button id="close-boundaries" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close boundaries">&times;</button>
+      </div>
+      <label class="flex items-start gap-3 rounded-2xl bg-white/5 border border-white/15 p-4 cursor-pointer">
+        <input id="privacy-boundary" type="checkbox" class="mt-1 h-5 w-5 accent-amber-400">
+        <span>
+          <span class="block font-bold text-white">Avoid phone and privacy prompts</span>
+          <span class="block text-sm text-white/65 mt-1">Filters prompts about phones, private messages, search history, social media, or contacting other people. In online play, this setting applies to everyone in the room.</span>
+        </span>
+      </label>
     </div>
   </div>
 
@@ -1024,6 +1091,20 @@
         <button id="emoji-confirm" class="rounded-full px-5 py-2 font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-black hover:scale-105 transition">Confirm</button>
         <button id="emoji-cancel" class="rounded-full px-5 py-2 font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <div id="room-media-view-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 720px;">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 id="room-media-view-title" class="text-xl font-black text-white">View-once media</h3>
+          <p class="text-xs text-white/65 mt-1">Closing this view prevents reopening it in the game. Screenshots or recordings may still be possible.</p>
+        </div>
+        <button id="close-room-media-view" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close media">&times;</button>
+      </div>
+      <img id="room-media-view-image" class="hidden max-h-[70vh] w-full rounded-xl object-contain" alt="View-once image">
+      <video id="room-media-view-video" class="hidden max-h-[70vh] w-full rounded-xl" controls playsinline preload="metadata"></video>
     </div>
   </div>
 
@@ -1087,7 +1168,11 @@
         </div>
         <div data-auth-field="password">
           <label for="auth-password" class="block text-sm font-bold text-white mb-1">Password</label>
-          <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+          <div class="relative">
+            <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" class="w-full rounded-full px-4 py-3 pr-20 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+            <button id="auth-password-toggle" type="button" aria-pressed="false" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/70 hover:text-white">Show</button>
+          </div>
+          <p class="text-xs text-white/60 mt-1 px-2">Use at least 6 characters. Choose a password you don't use elsewhere.</p>
         </div>
         <p id="auth-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2" role="alert"></p>
         <p id="auth-info" class="hidden text-sm font-bold text-emerald-200 bg-emerald-500/15 border border-emerald-400/30 rounded-xl px-3 py-2" role="status"></p>
@@ -1097,6 +1182,10 @@
       <div class="flex justify-between items-center mt-4 text-sm">
         <button type="button" id="auth-forgot" class="text-white/70 hover:text-white underline underline-offset-2">Forgot password?</button>
         <button type="button" id="auth-back" class="hidden text-white/70 hover:text-white underline underline-offset-2">Back to log in</button>
+      </div>
+      <div id="auth-offline-action" class="mt-5 border-t border-white/10 pt-4">
+        <button id="continue-offline" type="button" class="w-full rounded-full px-5 py-2.5 font-bold bg-white/10 border border-white/20 hover:bg-white/20 transition text-white">Continue offline without an account</button>
+        <p class="text-center text-xs text-white/60 mt-2">Offline play stays on this device. Sign in is needed for online rooms and synced progress.</p>
       </div>
     </div>
   </div>
@@ -1268,6 +1357,7 @@
       let timerDuration = 30;
       let wildcardMode = false;
       let soundEnabled = true;
+      let boundaries = { privacy: true };
       let spinHistory = [];
       let achievements = new Set();
       let usedTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] }, wildcard: { truth: [], dare: [] } };
@@ -1655,6 +1745,9 @@
         if (!wildcardMode) {
           taskList = [...taskList, ...communityTasks[currentLevel][coinFlip]];
         }
+        if (boundaries.privacy) {
+          taskList = taskList.filter(task => !isPrivacySensitiveTask(task));
+        }
         
         if (!usedTasks[poolKey]) usedTasks[poolKey] = { truth: [], dare: [] };
         let used = usedTasks[poolKey][coinFlip];
@@ -1669,6 +1762,10 @@
         usedTasks[poolKey][coinFlip].push(chosen);
         
         return { task: chosen, type: coinFlip };
+      }
+
+      function isPrivacySensitiveTask(task) {
+        return /\b(?:phone|mobile|social media|search history|photo gallery|profile picture|private messages?|text message|last text|text you (?:received|sent)|call (?:a friend|your crush)|contact(?:ing)? (?:someone|other people|a friend)|send(?:ing)? (?:a|one|someone)? ?(?:message|text)|post(?:ing)? (?:a|your) (?:funny )?selfie|scroll through your)\b/i.test(task);
       }
 
       function displayTask(taskData, playerName = null) {
@@ -2069,6 +2166,40 @@
         showToast(wildcardMode ? 'Wildcard mode ON! 🃏' : 'Wildcard mode OFF', 'info');
       });
 
+      const boundariesModal = document.getElementById('boundaries-modal');
+      const privacyBoundaryInput = document.getElementById('privacy-boundary');
+
+      function syncBoundaryControl() {
+        privacyBoundaryInput.checked = boundaries.privacy;
+      }
+
+      document.getElementById('boundaries-btn').addEventListener('click', () => {
+        playClickSound();
+        syncBoundaryControl();
+        boundariesModal.classList.remove('hidden');
+      });
+
+      document.getElementById('close-boundaries').addEventListener('click', () => {
+        boundariesModal.classList.add('hidden');
+      });
+
+      privacyBoundaryInput.addEventListener('change', async () => {
+        const enabled = privacyBoundaryInput.checked;
+        if (onlineRoom) {
+          privacyBoundaryInput.disabled = true;
+          await sendRoomAction({ type: 'set_boundaries', privacy: enabled });
+          privacyBoundaryInput.disabled = false;
+          syncBoundaryControl();
+          return;
+        }
+
+        boundaries.privacy = enabled;
+        if (enabled && lastSelectedPlayer && isPrivacySensitiveTask(taskTextEl.textContent)) {
+          displayTask(getRandomTask());
+        }
+        showToast(enabled ? 'Phone and privacy prompts filtered.' : 'Phone and privacy prompts allowed.', 'info');
+      });
+
       // Sound toggle
       document.getElementById('sound-toggle').addEventListener('click', () => {
         initAudio();
@@ -2261,7 +2392,7 @@
 
       // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
-        if (!profile || document.querySelector('.modal-overlay:not(.hidden)')) return;
+        if ((!profile && !offlineMode) || document.querySelector('.modal-overlay:not(.hidden)')) return;
         if (e.key === ' ' && !spinning && items.length >= 2 && document.activeElement === document.body) {
           e.preventDefault();
           spinBtn.click();
@@ -2278,14 +2409,24 @@
       const IDENTITY_URL = 'https://esm.sh/@netlify/identity@2.0.0';
       let identity = null;
       let profile = null;
+      let offlineMode = false;
       let lifetime = null;
       let onlineRoom = null;
       let roomSig = null;
       let deferredRoom = null;
       let localSnapshot = null;
       let roomPollTimer = null;
+      let chatPollTimer = null;
       let invitePollTimer = null;
       let actionInFlight = false;
+      let mediaRecorder = null;
+      let mediaStream = null;
+      let recordedChunks = [];
+      let voiceRecordingTimer = null;
+      let voiceRecordingLimit = null;
+      let voiceRecordingStartedAt = 0;
+      let voiceNote = null;
+      let voicePreviewUrl = null;
       let saveTimer = null;
       let latestInvites = { incoming: [], outgoing: [], rooms: [] };
       let authMode = 'login';
@@ -2401,9 +2542,13 @@
           tab.classList.toggle('active', tab.dataset.authTab === mode);
         });
         $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
+        $('auth-offline-action').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
         $('auth-forgot').classList.toggle('hidden', mode !== 'login');
         $('auth-back').classList.toggle('hidden', mode !== 'forgot');
         $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+        $('auth-password').type = 'password';
+        $('auth-password-toggle').textContent = 'Show';
+        $('auth-password-toggle').setAttribute('aria-pressed', 'false');
         $('auth-submit').textContent = {
           login: 'Log in',
           signup: 'Create account',
@@ -2423,6 +2568,7 @@
         setAuthMode(mode);
         if (message) setAuthMessage(message.kind, message.text);
         $('account-bar').classList.add('hidden');
+        $('offline-bar').classList.add('hidden');
         $('auth-modal').classList.remove('hidden');
       }
 
@@ -2447,6 +2593,21 @@
       });
       $('auth-forgot').addEventListener('click', () => setAuthMode('forgot'));
       $('auth-back').addEventListener('click', () => setAuthMode('login'));
+      $('auth-password-toggle').addEventListener('click', () => {
+        const password = $('auth-password');
+        const isVisible = password.type === 'password';
+        password.type = isVisible ? 'text' : 'password';
+        $('auth-password-toggle').textContent = isVisible ? 'Hide' : 'Show';
+        $('auth-password-toggle').setAttribute('aria-pressed', String(isVisible));
+      });
+
+      $('continue-offline').addEventListener('click', () => {
+        offlineMode = true;
+        $('auth-modal').classList.add('hidden');
+        $('offline-bar').classList.remove('hidden');
+        showToast('Playing offline on this device. 🎲', 'info');
+      });
+      $('offline-login-btn').addEventListener('click', () => showAuth('login'));
 
       $('auth-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -2454,11 +2615,13 @@
           setAuthMessage('error', 'Still connecting. Please try again in a moment.');
           return;
         }
-        const email = $('auth-email').value.trim();
+        const emailInput = $('auth-email');
+        const email = emailInput.value.trim();
         const password = $('auth-password').value;
         const displayName = $('auth-display-name').value.trim();
 
         if (authMode !== 'reset' && !email) return setAuthMessage('error', 'Enter your email address.');
+        if (authMode !== 'reset' && !emailInput.validity.valid) return setAuthMessage('error', 'Enter a valid email address.');
         if ((authMode === 'login' || authMode === 'signup' || authMode === 'reset') && password.length < 6) {
           return setAuthMessage('error', 'Password must be at least 6 characters.');
         }
@@ -2516,9 +2679,11 @@
           }
           return;
         }
+        offlineMode = false;
         setProfile(data.profile);
         applyProfileStats(data.profile.stats || {});
         $('auth-modal').classList.add('hidden');
+        $('offline-bar').classList.add('hidden');
         $('account-bar').classList.remove('hidden');
         $('account-bar').classList.add('flex');
 
@@ -2566,8 +2731,8 @@
         { icon: '👥', title: 'Add your players', body: 'Type names in the player box and tap Add. Pick an emoji for each one. You need at least 2 players to spin.' },
         { icon: '🎯', title: 'Spin the wheel', body: 'Tap SPIN (or press Space). The wheel picks a player and gives them a random truth or dare.' },
         { icon: '🌶️', title: 'Pick your level', body: 'Child\'s Play is family-friendly, Pleasing is a bit bolder, and Dirty & Flirty is for adults (18+). Wildcard mixes it up.' },
-        { icon: '🔥', title: 'Build your streak', body: 'Tap Done when a task is complete, Re-roll for a different one, or go Double or Nothing to double your streak.' },
-        { icon: '🌐', title: 'Play online', body: 'Tap Play Online and invite friends by their display name. Everyone sees the same wheel live, wherever they are.' },
+        { icon: '🔥', title: 'Keep it comfortable', body: 'Tap Done when a task is complete, Pass for another prompt without penalty, or set group boundaries before playing.' },
+        { icon: '🌐', title: 'Play online', body: 'Invite friends by display name, then use room chat for text or short voice notes while you play together online.' },
         { icon: '🏆', title: 'Your progress is saved', body: 'Spins, completed tasks, streaks, and achievements are saved to your account, so you can pick up on any device. Have fun!' },
       ];
       let tutorialStep = 0;
@@ -2763,12 +2928,438 @@
       });
 
       // ---- Online room sync ----
+      const roomChatPanel = $('room-chat-panel');
+      const roomChatMessages = $('room-chat-messages');
+      const ROOM_MEDIA_TYPES = new Set([
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'video/mp4',
+        'video/webm',
+        'video/quicktime',
+      ]);
+      let selectedRoomMediaFile = null;
+      let selectedRoomMediaUrl = null;
+      let viewOnceObjectUrl = null;
+
+      function setRoomChatError(message) {
+        const error = $('room-chat-error');
+        error.textContent = message || '';
+        error.classList.toggle('hidden', !message);
+      }
+
+      function renderRoomMessages(messages) {
+        if (!messages.length) {
+          roomChatMessages.innerHTML = '<p class="text-sm text-white/55 text-center py-4">No messages yet. Say hello!</p>';
+          return;
+        }
+
+        const roomId = onlineRoom.id;
+        roomChatMessages.innerHTML = messages.map(message => {
+          const time = new Date(message.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          const content = message.isAudio
+            ? `<audio controls preload="none" class="w-full mt-2" src="/api/rooms/${roomId}/messages?audio=${message.id}"></audio>`
+            : message.mediaKind
+              ? `<div class="mt-2 text-sm text-white/80">
+                  ${message.canViewMedia
+                    ? `<button type="button" data-room-media-view="${message.id}" data-media-kind="${message.mediaKind === 'image' ? 'image' : 'video'}" class="rounded-full px-4 py-2 font-bold bg-amber-400 text-black">View ${message.mediaKind === 'image' ? 'image' : 'video'} once</button>`
+                    : message.isSender
+                      ? `<span>Viewed by ${message.viewCount} / ${message.recipientCount} player${message.recipientCount === 1 ? '' : 's'}</span>`
+                      : message.isRecipient
+                        ? `<span>You have used your one view · ${message.viewCount} / ${message.recipientCount} opened</span>`
+                        : '<span>This was shared before you joined the game.</span>'}
+                </div>`
+              : `<p class="text-sm text-white whitespace-pre-wrap break-words">${escapeHtml(message.text || '')}</p>`;
+          const removeButton = message.canDelete
+            ? `<button type="button" data-room-message-delete="${message.id}" class="text-xs text-white/60 hover:text-red-200 underline underline-offset-2">Delete</button>`
+            : '';
+          return `<article class="rounded-xl bg-white/5 border border-white/10 px-3 py-2">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-xs font-black text-emerald-200">${escapeHtml(message.displayName)}</span>
+              <span class="flex items-center gap-2 shrink-0">
+                <time class="text-[11px] text-white/50">${escapeHtml(time)}</time>
+                ${removeButton}
+              </span>
+            </div>
+            ${content}
+          </article>`;
+        }).join('');
+        roomChatMessages.scrollTop = roomChatMessages.scrollHeight;
+      }
+
+      async function refreshRoomChat() {
+        if (!onlineRoom || roomChatPanel.classList.contains('hidden')) return;
+        const roomId = onlineRoom.id;
+        try {
+          const data = await api(`/api/rooms/${roomId}/messages`);
+          if (onlineRoom && onlineRoom.id === roomId && !roomChatPanel.classList.contains('hidden')) {
+            renderRoomMessages(data.messages || []);
+            setRoomChatError('');
+          }
+        } catch (error) {
+          if (onlineRoom && onlineRoom.id === roomId && !roomChatPanel.classList.contains('hidden')) {
+            setRoomChatError(error.message);
+          }
+        } finally {
+          if (onlineRoom && onlineRoom.id === roomId && !roomChatPanel.classList.contains('hidden')) {
+            clearTimeout(chatPollTimer);
+            chatPollTimer = setTimeout(refreshRoomChat, 3000);
+          }
+        }
+      }
+
+      function clearSelectedRoomMedia() {
+        selectedRoomMediaFile = null;
+        if (selectedRoomMediaUrl) URL.revokeObjectURL(selectedRoomMediaUrl);
+        selectedRoomMediaUrl = null;
+        $('room-media-input').value = '';
+        $('room-media-preview').replaceChildren();
+        $('room-media-file-name').textContent = '';
+        $('room-media-preview-row').classList.add('hidden');
+        $('room-media-send').disabled = false;
+      }
+
+      function closeViewOnceMedia() {
+        $('room-media-view-modal').classList.add('hidden');
+        if (viewOnceObjectUrl) URL.revokeObjectURL(viewOnceObjectUrl);
+        viewOnceObjectUrl = null;
+        $('room-media-view-image').removeAttribute('src');
+        $('room-media-view-image').classList.add('hidden');
+        const video = $('room-media-view-video');
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        video.classList.add('hidden');
+      }
+
+      async function openViewOnceMedia(messageId, mediaKind, button) {
+        if (!onlineRoom) return;
+        if (!confirm('Open this item once? You will not be able to reopen it. The sender may be able to see that you opened it.')) return;
+        button.disabled = true;
+        setRoomChatError('');
+        const roomId = onlineRoom.id;
+        try {
+          const response = await fetch(`/api/rooms/${roomId}/messages?view=${messageId}`, {
+            credentials: 'same-origin',
+            cache: 'no-store',
+          });
+          if (!response.ok) {
+            let data = null;
+            try { data = await response.json(); } catch { data = null; }
+            throw new Error((data && data.error) || 'This item has expired or was already opened.');
+          }
+          const media = await response.blob();
+          if (!onlineRoom || onlineRoom.id !== roomId) return;
+          closeViewOnceMedia();
+          viewOnceObjectUrl = URL.createObjectURL(media);
+          if (mediaKind === 'image') {
+            $('room-media-view-image').src = viewOnceObjectUrl;
+            $('room-media-view-image').classList.remove('hidden');
+            $('room-media-view-title').textContent = 'View-once image';
+          } else {
+            const video = $('room-media-view-video');
+            video.src = viewOnceObjectUrl;
+            video.classList.remove('hidden');
+            $('room-media-view-title').textContent = 'View-once video';
+          }
+          $('room-media-view-modal').classList.remove('hidden');
+          await refreshRoomChat();
+        } catch (error) {
+          setRoomChatError(error.message);
+          await refreshRoomChat();
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      function selectRoomMedia(file) {
+        clearSelectedRoomMedia();
+        if (!file) return;
+        if (!onlineRoom || onlineRoom.players.length < 2) {
+          setRoomChatError('Invite another player before sharing media.');
+          return;
+        }
+        if (!ROOM_MEDIA_TYPES.has(file.type.toLowerCase())) {
+          setRoomChatError('Choose a JPG, PNG, WebP, GIF, MP4, WebM, or MOV file.');
+          return;
+        }
+        if (!file.size) {
+          setRoomChatError('The selected file is empty.');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          setRoomChatError('Images and videos must be 5 MB or smaller.');
+          return;
+        }
+
+        selectedRoomMediaFile = file;
+        selectedRoomMediaUrl = URL.createObjectURL(file);
+        $('room-media-file-name').textContent = file.name;
+        const preview = file.type.startsWith('image/') ? document.createElement('img') : document.createElement('video');
+        preview.src = selectedRoomMediaUrl;
+        preview.className = 'block max-h-52 max-w-full mx-auto rounded-lg object-contain';
+        if (preview instanceof HTMLImageElement) {
+          preview.alt = 'Preview of the selected image';
+        } else {
+          preview.controls = true;
+          preview.playsInline = true;
+          preview.preload = 'metadata';
+        }
+        $('room-media-preview').appendChild(preview);
+        $('room-media-preview-row').classList.remove('hidden');
+        setRoomChatError('');
+      }
+
+      function clearVoiceRecording() {
+        clearInterval(voiceRecordingTimer);
+        clearTimeout(voiceRecordingLimit);
+        voiceRecordingTimer = null;
+        voiceRecordingLimit = null;
+
+        if (mediaRecorder) {
+          const recorder = mediaRecorder;
+          mediaRecorder = null;
+          recorder.ondataavailable = null;
+          recorder.onstop = null;
+          if (recorder.state !== 'inactive') recorder.stop();
+        }
+        if (mediaStream) {
+          mediaStream.getTracks().forEach(track => track.stop());
+          mediaStream = null;
+        }
+        recordedChunks = [];
+        voiceNote = null;
+        voiceRecordingStartedAt = 0;
+        if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+        voicePreviewUrl = null;
+        $('voice-preview').removeAttribute('src');
+        $('voice-preview').load();
+        $('voice-preview-row').classList.add('hidden');
+        $('voice-record-start').classList.remove('hidden');
+        $('voice-record-start').disabled = false;
+        $('voice-record-stop').classList.add('hidden');
+        $('voice-send').disabled = false;
+        $('voice-record-status').textContent = '';
+      }
+
+      function stopVoiceRecording() {
+        clearInterval(voiceRecordingTimer);
+        clearTimeout(voiceRecordingLimit);
+        voiceRecordingTimer = null;
+        voiceRecordingLimit = null;
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          $('voice-record-status').textContent = 'Preparing your recording...';
+          mediaRecorder.stop();
+        }
+      }
+
+      async function startVoiceRecording() {
+        setRoomChatError('');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+          setRoomChatError('Voice recording is not supported by this browser. You can still send text messages.');
+          return;
+        }
+
+        $('voice-record-start').disabled = true;
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          if (!onlineRoom || roomChatPanel.classList.contains('hidden')) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+            $('voice-record-start').disabled = false;
+            return;
+          }
+
+          const mimeType = typeof MediaRecorder.isTypeSupported === 'function'
+            ? ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(type => MediaRecorder.isTypeSupported(type))
+            : '';
+          mediaRecorder = mimeType
+            ? new MediaRecorder(mediaStream, { mimeType })
+            : new MediaRecorder(mediaStream);
+          recordedChunks = [];
+          mediaRecorder.ondataavailable = event => {
+            if (event.data && event.data.size) recordedChunks.push(event.data);
+          };
+          mediaRecorder.onstop = () => {
+            const recorder = mediaRecorder;
+            const chunks = recordedChunks.slice();
+            const contentType = (recorder && recorder.mimeType) || (chunks[0] && chunks[0].type) || 'audio/webm';
+            mediaRecorder = null;
+            if (mediaStream) {
+              mediaStream.getTracks().forEach(track => track.stop());
+              mediaStream = null;
+            }
+            if (!chunks.length) {
+              clearVoiceRecording();
+              setRoomChatError('No audio was captured. Please try recording again.');
+              return;
+            }
+            voiceNote = new Blob(chunks, { type: contentType });
+            voicePreviewUrl = URL.createObjectURL(voiceNote);
+            $('voice-preview').src = voicePreviewUrl;
+            $('voice-preview-row').classList.remove('hidden');
+            $('voice-record-stop').classList.add('hidden');
+            $('voice-record-status').textContent = 'Review your voice note before sending.';
+          };
+          mediaRecorder.start();
+          voiceRecordingStartedAt = Date.now();
+          $('voice-record-start').classList.add('hidden');
+          $('voice-record-stop').classList.remove('hidden');
+          $('voice-record-status').textContent = 'Recording: 0s / 60s';
+          voiceRecordingTimer = setInterval(() => {
+            const seconds = Math.min(60, Math.floor((Date.now() - voiceRecordingStartedAt) / 1000));
+            $('voice-record-status').textContent = `Recording: ${seconds}s / 60s`;
+          }, 250);
+          voiceRecordingLimit = setTimeout(stopVoiceRecording, 60000);
+        } catch (error) {
+          clearVoiceRecording();
+          setRoomChatError(error.name === 'NotAllowedError'
+            ? 'Microphone access was denied. Allow microphone access to record a voice note.'
+            : (error.message || 'Could not start voice recording.'));
+        }
+      }
+
+      $('online-chat-toggle').addEventListener('click', () => {
+        const opening = roomChatPanel.classList.contains('hidden');
+        if (!opening) {
+          closeRoomChat();
+          return;
+        }
+        roomChatPanel.classList.remove('hidden');
+        $('online-chat-toggle').setAttribute('aria-expanded', 'true');
+        setRoomChatError('');
+        $('room-chat-input').focus();
+        clearTimeout(chatPollTimer);
+        refreshRoomChat();
+      });
+
+      function closeRoomChat() {
+        roomChatPanel.classList.add('hidden');
+        $('online-chat-toggle').setAttribute('aria-expanded', 'false');
+        clearTimeout(chatPollTimer);
+        chatPollTimer = null;
+        clearVoiceRecording();
+        clearSelectedRoomMedia();
+        setRoomChatError('');
+      }
+
+      $('close-room-chat').addEventListener('click', closeRoomChat);
+      $('room-media-select').addEventListener('click', () => $('room-media-input').click());
+      $('room-media-input').addEventListener('change', event => selectRoomMedia(event.target.files[0]));
+      $('room-media-discard').addEventListener('click', clearSelectedRoomMedia);
+
+      $('room-chat-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!onlineRoom) return;
+        const input = $('room-chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const send = $('room-chat-send');
+        send.disabled = true;
+        setRoomChatError('');
+        try {
+          await api(`/api/rooms/${onlineRoom.id}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({ text }),
+          });
+          input.value = '';
+          await refreshRoomChat();
+        } catch (error) {
+          setRoomChatError(error.message);
+        } finally {
+          send.disabled = false;
+        }
+      });
+
+      roomChatMessages.addEventListener('click', async event => {
+        const viewButton = event.target.closest('[data-room-media-view]');
+        if (viewButton && onlineRoom) {
+          await openViewOnceMedia(
+            Number(viewButton.dataset.roomMediaView),
+            viewButton.dataset.mediaKind,
+            viewButton,
+          );
+          return;
+        }
+        const button = event.target.closest('[data-room-message-delete]');
+        if (!button || !onlineRoom) return;
+        if (!confirm('Delete this message for everyone in the game?')) return;
+        button.disabled = true;
+        try {
+          await api(`/api/rooms/${onlineRoom.id}/messages?messageId=${button.dataset.roomMessageDelete}`, { method: 'DELETE' });
+          await refreshRoomChat();
+        } catch (error) {
+          setRoomChatError(error.message);
+          button.disabled = false;
+        }
+      });
+
+      $('voice-record-start').addEventListener('click', startVoiceRecording);
+      $('voice-record-stop').addEventListener('click', stopVoiceRecording);
+      $('voice-discard').addEventListener('click', clearVoiceRecording);
+      $('room-media-send').addEventListener('click', async () => {
+        if (!onlineRoom || !selectedRoomMediaFile) return;
+        if (!confirm('Send this as view-once media? Each other player can open it once. It expires after 24 hours or when the game ends. A recipient may still take a screenshot or recording.')) return;
+        const send = $('room-media-send');
+        const roomId = onlineRoom.id;
+        send.disabled = true;
+        setRoomChatError('');
+        try {
+          await api(`/api/rooms/${roomId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': selectedRoomMediaFile.type },
+            body: selectedRoomMediaFile,
+          });
+          clearSelectedRoomMedia();
+          await refreshRoomChat();
+        } catch (error) {
+          setRoomChatError(error.message);
+        } finally {
+          send.disabled = false;
+        }
+      });
+      $('voice-send').addEventListener('click', async () => {
+        if (!onlineRoom || !voiceNote) return;
+        const send = $('voice-send');
+        send.disabled = true;
+        setRoomChatError('');
+        try {
+          await api(`/api/rooms/${onlineRoom.id}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': voiceNote.type || 'audio/webm' },
+            body: voiceNote,
+          });
+          clearVoiceRecording();
+          await refreshRoomChat();
+        } catch (error) {
+          send.disabled = false;
+          setRoomChatError(error.message);
+        }
+      });
+
+      $('close-room-media-view').addEventListener('click', closeViewOnceMedia);
+      $('room-media-view-modal').addEventListener('click', event => {
+        if (event.target === $('room-media-view-modal')) closeViewOnceMedia();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !$('room-media-view-modal').classList.contains('hidden')) {
+          closeViewOnceMedia();
+        }
+      });
+
       function setOnlineChrome(active) {
         $('online-banner').classList.toggle('hidden', !active);
         $('online-banner').classList.toggle('flex', active);
         $('add-form').classList.toggle('hidden', active);
         $('local-player-actions').classList.toggle('hidden', active);
         $('online-players-note').classList.toggle('hidden', !active);
+        $('online-chat-toggle').classList.toggle('hidden', !active);
+        if (!active) {
+          closeRoomChat();
+          clearSelectedRoomMedia();
+          closeViewOnceMedia();
+        }
       }
 
       function syncLevelButtons() {
@@ -2874,6 +3465,8 @@
         if (wildcardMode !== !!st.wildcardMode && prev) showToast(st.wildcardMode ? 'Wildcard mode ON! 🃏' : 'Wildcard mode OFF', 'info');
         wildcardMode = !!st.wildcardMode;
         syncWildcardButton();
+        boundaries = st.boundaries || { privacy: true };
+        syncBoundaryControl();
         totalSpins = st.totalSpins;
         completedTasks = st.completedTasks;
         streakCount = st.streakCount;
@@ -2948,6 +3541,9 @@
           showToast(err.message, 'error');
           return;
         }
+        closeRoomChat();
+        closeViewOnceMedia();
+        roomChatMessages.innerHTML = '';
         if (!onlineRoom) {
           await flushProgressSave();
           localSnapshot = {
@@ -2955,6 +3551,7 @@
             playerEmojis: { ...playerEmojis },
             currentLevel,
             wildcardMode,
+            boundaries: { ...boundaries },
             spinHistory: spinHistory.slice(),
           };
         }
@@ -2983,12 +3580,14 @@
           playerEmojis = localSnapshot.playerEmojis;
           currentLevel = localSnapshot.currentLevel;
           wildcardMode = localSnapshot.wildcardMode;
+          boundaries = localSnapshot.boundaries;
           spinHistory = localSnapshot.spinHistory;
           localSnapshot = null;
         }
         applyTheme(currentLevel);
         syncLevelButtons();
         syncWildcardButton();
+        syncBoundaryControl();
         renderChips();
         updateUI();
         refreshInvites();
@@ -3013,6 +3612,7 @@
           if (data.left) return;
           if (onlineRoom && onlineRoom.id === roomId) applyRoom(data.room);
         } catch (err) {
+          if (action.type === 'set_boundaries') syncBoundaryControl();
           showToast(err.message, 'warning');
         } finally {
           actionInFlight = false;

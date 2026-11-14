@@ -1,7 +1,7 @@
 import { getUser } from "@netlify/identity";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { gameRooms } from "../../db/schema.js";
+import { gameRooms, roomMessages } from "../../db/schema.js";
 import {
   bumpCompletion,
   bumpLifetimeStats,
@@ -10,7 +10,7 @@ import {
   type RoomPlayer,
   type RoomState,
 } from "../../lib/rooms.js";
-import type { TaskLevel } from "../../lib/tasks.js";
+import { isPrivacySensitiveTask, type TaskLevel } from "../../lib/tasks.js";
 
 function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -46,6 +46,7 @@ export default async (request: Request, context: { params: Record<string, string
   }
 
   const state = { ...(room.state as RoomState) };
+  state.boundaries = state.boundaries ?? { privacy: true };
   const type = body.type;
 
   if (type === "spin") {
@@ -108,17 +109,34 @@ export default async (request: Request, context: { params: Record<string, string
       state.currentTask = picked;
       recordHistory(state, state.lastSelectedPlayer, picked.task, picked.type);
     }
+  } else if (type === "set_boundaries") {
+    if (typeof body.privacy !== "boolean") return json({ error: "Choose whether to filter privacy-related prompts." }, 400);
+    state.boundaries = { privacy: body.privacy };
+    if (
+      body.privacy &&
+      state.lastSelectedPlayer &&
+      state.currentTask &&
+      isPrivacySensitiveTask(state.currentTask.task)
+    ) {
+      const picked = await pickTask(state);
+      state.currentTask = picked;
+      recordHistory(state, state.lastSelectedPlayer, picked.task, picked.type);
+    }
   } else if (type === "leave") {
     const remaining = players.filter((p) => p.userId !== user.id);
+    const ended = remaining.length < 2;
     await db
       .update(gameRooms)
       .set({
         players: remaining,
-        status: remaining.length < 2 ? "ended" : room.status,
+        status: ended ? "ended" : room.status,
         state: { ...state, items: remaining.map((p) => p.displayName) },
         updatedAt: new Date(),
       })
       .where(eq(gameRooms.id, room.id));
+    if (ended) {
+      await db.delete(roomMessages).where(eq(roomMessages.roomId, room.id));
+    }
     return json({ left: true });
   } else {
     return json({ error: "Unknown action." }, 400);

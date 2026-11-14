@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { communityTasks, playerProfiles } from "../db/schema.js";
-import { tasks, wildcardTasks, type TaskLevel, type TaskType } from "./tasks.js";
+import { isPrivacySensitiveTask, tasks, wildcardTasks, type TaskLevel, type TaskType } from "./tasks.js";
 import { defaultStats, type PlayerStats } from "./profile.js";
 
 export type RoomPlayer = { userId: string; displayName: string };
+export type RoomBoundaries = { privacy: boolean };
 
 export type SpinHistoryEntry = {
   player: string;
@@ -18,6 +19,7 @@ export type SpinHistoryEntry = {
 export type RoomState = {
   items: string[];
   level: TaskLevel;
+  boundaries?: RoomBoundaries;
   wildcardMode: boolean;
   lastSelectedPlayer: string | null;
   currentTask: { task: string; type: TaskType } | null;
@@ -33,6 +35,7 @@ export function initialRoomState(players: RoomPlayer[]): RoomState {
   return {
     items: players.map((p) => p.displayName),
     level: "child",
+    boundaries: { privacy: true },
     wildcardMode: false,
     lastSelectedPlayer: null,
     currentTask: null,
@@ -61,6 +64,13 @@ export async function pickTask(state: RoomState): Promise<{ task: string; type: 
   if (!state.wildcardMode) {
     const community = await loadCommunityTasksFor(state.level, type);
     pool = [...pool, ...community];
+  }
+  if (state.boundaries?.privacy ?? true) {
+    pool = pool.filter((task) => !isPrivacySensitiveTask(task));
+  }
+
+  if (pool.length === 0) {
+    throw new Error("No prompts match this game's boundaries. Change the boundaries and try again.");
   }
 
   if (!state.usedTasks[poolKey]) state.usedTasks[poolKey] = { truth: [], dare: [] };

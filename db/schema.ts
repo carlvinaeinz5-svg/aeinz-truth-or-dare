@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { bytea, boolean, index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const taskType = pgEnum("task_type", ["truth", "dare"]);
 export const taskLevel = pgEnum("task_level", ["child", "pleasing", "dirty"]);
@@ -48,3 +48,30 @@ export const gameInvites = pgTable("game_invites", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   respondedAt: timestamp("responded_at", { withTimezone: true }),
 });
+
+export const roomMessages = pgTable("room_messages", {
+  id: serial().primaryKey(),
+  roomId: integer("room_id").notNull().references(() => gameRooms.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull(),
+  displayName: text("display_name").notNull(),
+  text: text(),
+  audioData: bytea("audio_data"),
+  audioContentType: text("audio_content_type"),
+  mediaData: bytea("media_data"),
+  mediaContentType: text("media_content_type"),
+  mediaKind: text("media_kind"),
+  recipientUserIds: jsonb("recipient_user_ids").$type<string[]>(),
+  mediaExpiresAt: timestamp("media_expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  roomCreatedIdx: index("room_messages_room_created_idx").on(table.roomId, table.createdAt),
+}));
+
+export const roomMessageViews = pgTable("room_message_views", {
+  id: serial().primaryKey(),
+  messageId: integer("message_id").notNull().references(() => roomMessages.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull(),
+  viewedAt: timestamp("viewed_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  messageUserIdx: uniqueIndex("room_message_views_message_user_idx").on(table.messageId, table.userId),
+}));

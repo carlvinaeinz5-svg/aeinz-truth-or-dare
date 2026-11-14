@@ -1,6 +1,13 @@
 export type TaskLevel = "child" | "pleasing" | "dirty";
 export type TaskType = "truth" | "dare";
 
+const PRIVACY_PROMPT_PATTERN =
+  /\b(?:phone|mobile|social media|search history|photo gallery|profile picture|private messages?|text message|last text|text you (?:received|sent)|call (?:a friend|your crush)|contact(?:ing)? (?:someone|other people|a friend)|send(?:ing)? (?:a|one|someone)? ?(?:message|text)|post(?:ing)? (?:a|your) (?:funny )?selfie|scroll through your)\b/i;
+
+export function isPrivacySensitiveTask(prompt: string) {
+  return PRIVACY_PROMPT_PATTERN.test(prompt);
+}
+
 export const tasks: Record<TaskLevel, Record<TaskType, string[]>> = {
   child: {
     truth: [
