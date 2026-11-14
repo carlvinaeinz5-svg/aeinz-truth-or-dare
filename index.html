@@ -463,6 +463,52 @@
       color: #000;
     }
 
+    .level-btn {
+      border-color: transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .level-btn.active {
+      transform: translateY(-2px);
+      font-weight: 900;
+    }
+
+    .level-btn.active[data-level="child"] {
+      color: #2b1b00;
+      background: linear-gradient(135deg, #ffca28, #ff8f00);
+      box-shadow: 0 0 0 3px rgba(255, 143, 0, 0.24), 0 8px 24px rgba(255, 143, 0, 0.35);
+    }
+
+    .level-btn.active[data-level="pleasing"] {
+      color: #fff;
+      background: linear-gradient(135deg, #00897b, #26a69a);
+      box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.24), 0 8px 24px rgba(0, 137, 123, 0.35);
+    }
+
+    .level-btn.active[data-level="dirty"] {
+      color: #fff;
+      background: linear-gradient(135deg, #ff3355, #c51162);
+      box-shadow: 0 0 0 3px rgba(255, 51, 85, 0.24), 0 8px 24px rgba(255, 51, 85, 0.35);
+    }
+
+    .player-entry-panel {
+      border: 2px solid rgba(251, 191, 36, 0.9) !important;
+      background: rgba(20, 20, 35, 0.42) !important;
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.12), 0 14px 36px rgba(0, 0, 0, 0.2);
+    }
+
+    #item-input {
+      min-height: 3.25rem;
+      border: 2px solid rgba(251, 191, 36, 0.6);
+      background: rgba(255, 255, 255, 0.16);
+      font-weight: 700;
+    }
+
+    #item-input:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.22);
+    }
+
     .tutorial-dot {
       width: 0.5rem;
       height: 0.5rem;
@@ -697,14 +743,14 @@
           🌐 Play Online
           <span id="invite-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-xs font-black flex items-center justify-center"></span>
         </button>
+        <button id="change-session-btn" type="button" class="frost-panel rounded-full px-3 py-2 text-sm font-bold hover:bg-white/20 transition">🔄 Change session</button>
         <button id="tutorial-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Show tutorial">❓</button>
         <button id="logout-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-white/20 transition">Log out</button>
       </div>
     </div>
 
     <div id="offline-bar" class="hidden frost-panel mb-4 flex flex-wrap items-center justify-between gap-2">
-      <p class="text-sm font-bold">Playing offline on this device · progress isn't synced</p>
-      <button id="offline-login-btn" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-white/10 border border-white/30 hover:bg-white/20">Sign in for online play</button>
+      <p id="offline-session-label" class="text-sm font-bold">Offline session · signed in</p>
     </div>
 
     <!-- Online Game Banner -->
@@ -717,6 +763,7 @@
         <div class="min-w-0">
           <p class="text-sm font-black">🌐 Online game</p>
           <p id="online-status" class="text-xs opacity-80 break-words"></p>
+          <p id="connection-status" class="hidden text-xs font-bold mt-1 text-amber-200" role="status" aria-live="polite"></p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -794,7 +841,7 @@
       </div>
       <div class="frost-panel text-center">
         <div class="text-xl sm:text-2xl mb-1">👥</div>
-        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="player-count-dash">5</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-black" id="player-count-dash">0</div>
         <div class="text-xs opacity-70">Players</div>
       </div>
     </div>
@@ -858,11 +905,13 @@
         </div>
 
         <!-- Player Input -->
-        <div class="frost-panel">
+        <div class="frost-panel player-entry-panel rounded-2xl p-4 sm:p-5">
           <p id="online-players-note" class="hidden text-sm font-bold mb-1">🌐 Players in this online game</p>
+          <label for="item-input" class="block text-base sm:text-lg font-black mb-2">👥 Add your players</label>
+          <p class="text-xs sm:text-sm opacity-75 mb-3">Enter each player’s name below. Add at least two people to start.</p>
           <form id="add-form" class="flex gap-2">
-            <input id="item-input" type="text" placeholder="Add player name..." 
-                   class="flex-1 rounded-full px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition text-sm sm:text-base"
+            <input id="item-input" type="text" placeholder="Type a player name..." aria-label="Player name"
+                   class="flex-1 min-w-0 rounded-full px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 text-white placeholder-white/70 outline-none focus:ring-2 focus:ring-amber-400 transition text-sm sm:text-base"
                    style="color: inherit;">
             <button type="button" id="emoji-btn" 
                     class="rounded-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 hover:bg-white/20 transition text-lg sm:text-xl"
@@ -877,7 +926,7 @@
           <div id="chips" class="flex flex-wrap gap-2 mt-4 min-h-[40px]"></div>
           
           <div class="flex justify-between items-center mt-3 text-xs sm:text-sm">
-            <span class="opacity-70" id="player-count">5 players</span>
+            <span class="opacity-70" id="player-count">0 players</span>
             <div id="local-player-actions" class="flex gap-2">
               <button id="shuffle-btn" class="rounded-full px-3 py-1.5 bg-white/10 hover:bg-white/20 transition text-xs sm:text-sm">
                 🔀 Shuffle
@@ -1143,12 +1192,12 @@
   </div>
 
   <!-- Auth Modal -->
-  <div id="auth-modal" class="modal-overlay hidden" data-locked="true">
+  <div id="auth-modal" class="modal-overlay" data-locked="true">
     <div class="modal-content" style="max-width: 440px;">
       <div class="text-center mb-5">
         <h3 class="text-gradient text-4xl font-black leading-tight">AEINZ</h3>
         <p class="text-white font-bold opacity-90">Truth or Dare</p>
-        <p id="auth-subtitle" class="text-sm text-white/70 mt-2">Sign in to save your progress and play online with friends.</p>
+        <p id="auth-subtitle" class="text-sm text-white/70 mt-2">Sign in first, then choose an Offline or Online session.</p>
       </div>
 
       <div id="auth-tabs" class="grid grid-cols-2 gap-1 p-1 rounded-full bg-white/10 mb-5">
@@ -1183,9 +1232,25 @@
         <button type="button" id="auth-forgot" class="text-white/70 hover:text-white underline underline-offset-2">Forgot password?</button>
         <button type="button" id="auth-back" class="hidden text-white/70 hover:text-white underline underline-offset-2">Back to log in</button>
       </div>
-      <div id="auth-offline-action" class="mt-5 border-t border-white/10 pt-4">
-        <button id="continue-offline" type="button" class="w-full rounded-full px-5 py-2.5 font-bold bg-white/10 border border-white/20 hover:bg-white/20 transition text-white">Continue offline without an account</button>
-        <p class="text-center text-xs text-white/60 mt-2">Offline play stays on this device. Sign in is needed for online rooms and synced progress.</p>
+    </div>
+  </div>
+
+  <div id="session-mode-modal" class="modal-overlay hidden" data-locked="true">
+    <div class="modal-content text-center" style="max-width: 520px;">
+      <p class="text-xs uppercase tracking-[0.2em] text-emerald-200 font-black mb-2">Signed in as <span id="session-mode-user"></span></p>
+      <h3 class="text-2xl sm:text-3xl font-black text-white mb-2">Choose how you want to play</h3>
+      <p class="text-sm text-white/70 mb-6">Your account is required for every session. Choose a mode to continue.</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <button id="choose-offline-session" type="button" class="rounded-2xl p-5 text-left bg-gradient-to-br from-amber-300 to-orange-500 text-black shadow-lg hover:scale-[1.02] transition">
+          <span class="block text-3xl mb-2">🎲</span>
+          <span class="block font-black text-lg">Play Offline</span>
+          <span class="block text-sm opacity-80 mt-1">One device, add players, and play together.</span>
+        </button>
+        <button id="choose-online-session" type="button" class="rounded-2xl p-5 text-left bg-gradient-to-br from-emerald-300 to-cyan-500 text-black shadow-lg hover:scale-[1.02] transition">
+          <span class="block text-3xl mb-2">🌐</span>
+          <span class="block font-black text-lg">Play Online</span>
+          <span class="block text-sm opacity-80 mt-1">Join a room or invite friends on their devices.</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1218,6 +1283,12 @@
         <button id="close-online" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close">&times;</button>
       </div>
 
+      <div class="rounded-2xl bg-emerald-400/10 border border-emerald-300/30 p-3 mb-4">
+        <p class="text-sm font-bold text-white mb-1">Start a room or return to a game</p>
+        <p class="text-xs text-white/70 mb-3">Create a room first, then invite friends. Your open games are listed below so you can rejoin them.</p>
+        <button id="create-room-btn" type="button" class="w-full rounded-full px-5 py-3 font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-black hover:scale-[1.01] transition disabled:opacity-60">＋ Create a new room</button>
+      </div>
+
       <div class="rounded-2xl bg-white/5 border border-white/15 p-3 mb-4">
         <p class="text-xs text-white/60 mb-1">Your display name (share it with friends)</p>
         <form id="display-name-form" class="flex gap-2">
@@ -1227,21 +1298,22 @@
       </div>
 
       <form id="invite-form" class="mb-2">
-        <label for="invite-name" class="block text-sm font-bold text-white mb-1">Invite a player</label>
+        <label for="invite-name" class="block text-sm font-bold text-white mb-1">Invite a player by display name</label>
         <div class="flex gap-2">
           <input id="invite-name" type="text" maxlength="24" placeholder="Their display name" autocomplete="off" class="flex-1 min-w-0 rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
           <button id="invite-submit" type="submit" class="rounded-full px-5 py-3 font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-black hover:scale-105 transition disabled:opacity-60 disabled:hover:scale-100">Send</button>
         </div>
+        <p class="text-xs text-white/60 mt-1 px-2">If you don’t have a room yet, sending an invite will create one for you.</p>
       </form>
       <p id="invite-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2 mb-2" role="alert"></p>
 
       <div class="space-y-4 mt-4">
         <section>
-          <h4 class="text-sm font-black text-amber-300 mb-2">📨 Invites for you</h4>
+          <h4 class="text-sm font-black text-amber-300 mb-2">📨 Join a friend’s invite</h4>
           <div id="incoming-list" class="space-y-2"></div>
         </section>
         <section>
-          <h4 class="text-sm font-black text-amber-300 mb-2">🎮 Your online games</h4>
+          <h4 class="text-sm font-black text-amber-300 mb-2">🎮 Rejoin one of your games</h4>
           <div id="rooms-list" class="space-y-2"></div>
         </section>
         <section>
@@ -1341,7 +1413,7 @@
       const DIRTY_COLORS = ['#ff1744','#d50032','#c51162','#ff4081','#f50057','#ff3355','#e91e63','#ff5252','#b71c1c','#880e4f'];
       const EMOJI_LIST = ['😊','😂','🤣','😍','😎','🤩','😜','😈','👻','🎃','🦄','🐶','🐱','🦊','🐼','🐨','🐸','🦁','🐯','🐻','🍕','🎸','🎮','💎','🔥','⚡','🌟','💀','👑','🤡','👽','🤖','🎭'];
 
-      let items = ['Alex', 'Jordan', 'Sam', 'Riley', 'Morgan'];
+      let items = [];
       let playerEmojis = {};
       let selectedEmoji = '😊';
       let spinning = false;
@@ -1998,6 +2070,11 @@
       
       // Spin button
       spinBtn.addEventListener('click', () => {
+        if (!profile || !sessionMode) return;
+        if (sessionMode === 'online' && !onlineRoom) {
+          showToast('Join or create an online room before spinning.', 'info');
+          return;
+        }
         if (spinning || items.length < 2) return;
         if (onlineRoom) {
           initAudio();
@@ -2244,16 +2321,9 @@
             if (btn.dataset.level !== currentLevel) sendRoomAction({ type: 'set_level', level: btn.dataset.level });
             return;
           }
-          document.querySelectorAll('.level-btn').forEach(b => {
-            b.classList.remove('active');
-            b.style.borderColor = 'transparent';
-          });
-          
-          btn.classList.add('active');
-          btn.style.borderColor = currentLevel === 'child' ? '#ff8f00' : (currentLevel === 'pleasing' ? '#00897b' : '#ff3355');
-          
           currentLevel = btn.dataset.level;
           applyTheme(currentLevel);
+          syncLevelButtons();
           
           if (lastSelectedPlayer && !resultArea.classList.contains('hidden')) {
             displayAutoTask();
@@ -2392,7 +2462,7 @@
 
       // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
-        if ((!profile && !offlineMode) || document.querySelector('.modal-overlay:not(.hidden)')) return;
+        if (!profile || !sessionMode || document.querySelector('.modal-overlay:not(.hidden)')) return;
         if (e.key === ' ' && !spinning && items.length >= 2 && document.activeElement === document.body) {
           e.preventDefault();
           spinBtn.click();
@@ -2410,6 +2480,7 @@
       let identity = null;
       let profile = null;
       let offlineMode = false;
+      let sessionMode = null;
       let lifetime = null;
       let onlineRoom = null;
       let roomSig = null;
@@ -2430,6 +2501,9 @@
       let saveTimer = null;
       let latestInvites = { incoming: [], outgoing: [], rooms: [] };
       let authMode = 'login';
+      let openOnlineAfterTutorial = false;
+      let reconnectAttempts = 0;
+      let roomConnectionState = 'connected';
 
       const $ = id => document.getElementById(id);
 
@@ -2447,6 +2521,50 @@
           throw err;
         }
         return data;
+      }
+
+      function savedRoomId() {
+        try {
+          const value = sessionStorage.getItem('aeinz-online-room');
+          return value && /^\d+$/.test(value) ? Number(value) : null;
+        } catch (error) {
+          console.error('Could not read the saved online room.', error);
+          return null;
+        }
+      }
+
+      function rememberRoom(roomId) {
+        try {
+          sessionStorage.setItem('aeinz-online-room', String(roomId));
+        } catch (error) {
+          console.error('Could not save this room for reconnection.', error);
+          showToast('This browser could not save the room for automatic reconnection.', 'warning');
+        }
+      }
+
+      function forgetRoom() {
+        try {
+          sessionStorage.removeItem('aeinz-online-room');
+        } catch (error) {
+          console.error('Could not clear the saved online room.', error);
+        }
+      }
+
+      function setRoomConnectionState(state) {
+        const wasReconnecting = roomConnectionState !== 'connected';
+        roomConnectionState = state;
+        reconnectAttempts = state === 'connected' ? 0 : reconnectAttempts;
+        const status = $('connection-status');
+        if (!onlineRoom || state === 'connected') {
+          status.classList.add('hidden');
+          if (onlineRoom && wasReconnecting) showToast('Connection restored. You’re back in the game! 🌐', 'success');
+          return;
+        }
+
+        status.classList.remove('hidden');
+        status.textContent = state === 'offline'
+          ? 'You’re offline. The game will reconnect when your connection returns…'
+          : 'Connection interrupted. Reconnecting…';
       }
 
       // ---- Progress saving (local play) ----
@@ -2542,7 +2660,6 @@
           tab.classList.toggle('active', tab.dataset.authTab === mode);
         });
         $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
-        $('auth-offline-action').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
         $('auth-forgot').classList.toggle('hidden', mode !== 'login');
         $('auth-back').classList.toggle('hidden', mode !== 'forgot');
         $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
@@ -2556,8 +2673,8 @@
           reset: 'Save new password',
         }[mode];
         $('auth-subtitle').textContent = {
-          login: 'Log in to keep your progress and play online with friends.',
-          signup: 'Create an account to save your progress and get invited to online games.',
+          login: 'Log in first, then choose an Offline or Online session.',
+          signup: 'Create an account to start offline play, save progress, and join friends online.',
           forgot: "Enter your email and we'll send you a link to reset your password.",
           reset: 'Choose a new password for your account.',
         }[mode];
@@ -2565,11 +2682,54 @@
       }
 
       function showAuth(mode = 'login', message = null) {
+        sessionMode = null;
+        offlineMode = false;
         setAuthMode(mode);
         if (message) setAuthMessage(message.kind, message.text);
         $('account-bar').classList.add('hidden');
         $('offline-bar').classList.add('hidden');
+        $('session-mode-modal').classList.add('hidden');
         $('auth-modal').classList.remove('hidden');
+      }
+
+      function showSessionModePicker() {
+        if (!profile) {
+          showAuth('login');
+          return;
+        }
+        sessionMode = null;
+        offlineMode = false;
+        $('offline-bar').classList.add('hidden');
+        $('session-mode-user').textContent = profile.displayName;
+        $('session-mode-modal').classList.remove('hidden');
+      }
+
+      function syncSessionControls() {
+        const inOnlineRoom = Boolean(onlineRoom);
+        $('change-session-btn').classList.toggle('hidden', inOnlineRoom);
+        $('offline-bar').classList.toggle('hidden', sessionMode !== 'offline' || inOnlineRoom);
+      }
+
+      function selectSessionMode(mode) {
+        if (!profile) {
+          showAuth('login');
+          return;
+        }
+        sessionMode = mode;
+        offlineMode = mode === 'offline';
+        $('session-mode-modal').classList.add('hidden');
+        if (offlineMode) {
+          $('offline-session-label').textContent = `Offline session · signed in as ${profile.displayName} · progress saves to your account`;
+        } else {
+          $('offline-bar').classList.add('hidden');
+        }
+        syncSessionControls();
+        if (!profile.hasSeenTutorial) {
+          openOnlineAfterTutorial = !offlineMode;
+          openTutorial();
+        } else if (!offlineMode) {
+          openOnlinePanel();
+        }
       }
 
       function friendlyAuthError(error) {
@@ -2601,13 +2761,13 @@
         $('auth-password-toggle').setAttribute('aria-pressed', String(isVisible));
       });
 
-      $('continue-offline').addEventListener('click', () => {
-        offlineMode = true;
-        $('auth-modal').classList.add('hidden');
-        $('offline-bar').classList.remove('hidden');
-        showToast('Playing offline on this device. 🎲', 'info');
+      $('choose-offline-session').addEventListener('click', () => selectSessionMode('offline'));
+      $('choose-online-session').addEventListener('click', () => selectSessionMode('online'));
+      $('change-session-btn').addEventListener('click', () => {
+        if (onlineRoom) return;
+        $('online-modal').classList.add('hidden');
+        showSessionModePicker();
       });
-      $('offline-login-btn').addEventListener('click', () => showAuth('login'));
 
       $('auth-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -2664,6 +2824,7 @@
         playClickSound();
         await flushProgressSave();
         try { await identity.logout(); } catch (err) { console.error(err); }
+        forgetRoom();
         window.location.reload();
       });
 
@@ -2680,18 +2841,22 @@
           return;
         }
         offlineMode = false;
+        sessionMode = null;
         setProfile(data.profile);
         applyProfileStats(data.profile.stats || {});
         $('auth-modal').classList.add('hidden');
-        $('offline-bar').classList.add('hidden');
         $('account-bar').classList.remove('hidden');
         $('account-bar').classList.add('flex');
-
-        if (!data.profile.hasSeenTutorial) {
-          openTutorial();
-        } else {
-          showToast(`Welcome back, ${data.profile.displayName}! 🎯`, 'info');
+        $('change-session-btn').classList.remove('hidden');
+        const roomToResume = savedRoomId();
+        if (roomToResume && await enterRoom(roomToResume)) {
+          refreshInvites();
+          clearInterval(invitePollTimer);
+          invitePollTimer = setInterval(refreshInvites, 8000);
+          return;
         }
+        showSessionModePicker();
+        showToast(`Welcome, ${data.profile.displayName}! Choose a session to play.`, 'info');
         refreshInvites();
         clearInterval(invitePollTimer);
         invitePollTimer = setInterval(refreshInvites, 8000);
@@ -2764,6 +2929,10 @@
           }
           spawnConfetti();
         }
+        if (openOnlineAfterTutorial) {
+          openOnlineAfterTutorial = false;
+          openOnlinePanel();
+        }
       }
 
       $('tutorial-next').addEventListener('click', () => {
@@ -2820,8 +2989,8 @@
           const isCurrent = onlineRoom && onlineRoom.id === room.id;
           return `
           <div class="flex items-center justify-between gap-2 rounded-xl p-3 bg-white/10 border border-white/20">
-            <span class="text-sm text-white min-w-0 break-words">${escapeHtml(label)} <span class="text-xs text-white/50">· ${room.status === 'active' ? 'live' : 'lobby'}</span></span>
-            <button data-room-open="${room.id}" class="shrink-0 rounded-full px-3 py-1.5 text-xs font-black ${isCurrent ? 'bg-white/10 border border-white/30 text-white' : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black'} transition" ${isCurrent ? 'disabled' : ''}>${isCurrent ? 'Playing' : 'Open'}</button>
+            <span class="text-sm text-white min-w-0 break-words">${escapeHtml(label)} <span class="text-xs text-white/50">· ${room.status === 'active' ? 'live' : 'lobby'} · ${room.players.length} player${room.players.length === 1 ? '' : 's'}</span></span>
+            <button data-room-open="${room.id}" class="shrink-0 rounded-full px-3 py-1.5 text-xs font-black ${isCurrent ? 'bg-white/10 border border-white/30 text-white' : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black'} transition" ${isCurrent ? 'disabled' : ''}>${isCurrent ? 'Playing' : 'Rejoin'}</button>
           </div>`;
         }).join('') : emptyRow('No online games yet. Invite someone to start one!');
 
@@ -2860,11 +3029,29 @@
         setTimeout(() => $('invite-name').focus(), 50);
       }
 
-      $('online-btn').addEventListener('click', openOnlinePanel);
+      $('online-btn').addEventListener('click', () => selectSessionMode('online'));
       $('online-invite-more').addEventListener('click', openOnlinePanel);
+      $('create-room-btn').addEventListener('click', async () => {
+        const button = $('create-room-btn');
+        button.disabled = true;
+        setInviteError('');
+        try {
+          const data = await api('/api/invites', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'create_room' }),
+          });
+          await refreshInvites();
+          await enterRoom(data.roomId);
+        } catch (error) {
+          setInviteError(error.message);
+        } finally {
+          button.disabled = false;
+        }
+      });
       $('close-online').addEventListener('click', () => {
         playClickSound();
         $('online-modal').classList.add('hidden');
+        if (sessionMode === 'online' && !onlineRoom) showSessionModePicker();
       });
 
       $('invite-form').addEventListener('submit', async (e) => {
@@ -3355,6 +3542,7 @@
         $('local-player-actions').classList.toggle('hidden', active);
         $('online-players-note').classList.toggle('hidden', !active);
         $('online-chat-toggle').classList.toggle('hidden', !active);
+        syncSessionControls();
         if (!active) {
           closeRoomChat();
           clearSelectedRoomMedia();
@@ -3367,6 +3555,7 @@
           const isActive = b.dataset.level === currentLevel;
           b.classList.toggle('active', isActive);
           b.style.borderColor = isActive ? (currentLevel === 'child' ? '#ff8f00' : (currentLevel === 'pleasing' ? '#00897b' : '#ff3355')) : 'transparent';
+          b.setAttribute('aria-pressed', String(isActive));
         });
       }
 
@@ -3444,7 +3633,7 @@
         }
         if (room.status === 'ended') {
           showToast('This online game has ended.', 'info');
-          exitOnline();
+          exitOnline(true);
           return;
         }
 
@@ -3518,20 +3707,46 @@
         try {
           if (!actionInFlight) {
             const data = await api(`/api/rooms/${roomId}`);
-            if (onlineRoom && onlineRoom.id === roomId) applyRoom(data.room);
+            if (onlineRoom && onlineRoom.id === roomId) {
+              setRoomConnectionState('connected');
+              applyRoom(data.room);
+            }
           }
         } catch (err) {
           if (err.status === 403 || err.status === 404) {
             showToast(err.message, 'warning');
-            exitOnline();
+            exitOnline(true);
             return;
           }
-          console.error(err);
+          if (err.status === 401) {
+            clearTimeout(roomPollTimer);
+            showAuth('login', { kind: 'error', text: 'Your sign-in expired. Log in again to reconnect to this room.' });
+            return;
+          }
+          reconnectAttempts++;
+          setRoomConnectionState('reconnecting');
+          console.warn('Room connection lost; retrying.', err);
         }
         if (onlineRoom && onlineRoom.id === roomId) {
-          roomPollTimer = setTimeout(pollRoom, document.hidden ? 6000 : 2000);
+          const backoff = Math.min(15000, 1000 * (2 ** Math.min(reconnectAttempts, 4)));
+          const normalDelay = document.hidden ? 6000 : 2000;
+          roomPollTimer = setTimeout(pollRoom, roomConnectionState === 'connected' ? normalDelay : backoff);
         }
       }
+
+      window.addEventListener('offline', () => {
+        if (!onlineRoom) return;
+        clearTimeout(roomPollTimer);
+        setRoomConnectionState('offline');
+      });
+
+      window.addEventListener('online', () => {
+        if (!onlineRoom) return;
+        reconnectAttempts = 0;
+        setRoomConnectionState('reconnecting');
+        clearTimeout(roomPollTimer);
+        pollRoom();
+      });
 
       async function enterRoom(roomId) {
         let data;
@@ -3539,7 +3754,8 @@
           data = await api(`/api/rooms/${roomId}`);
         } catch (err) {
           showToast(err.message, 'error');
-          return;
+          if (err.status === 403 || err.status === 404) forgetRoom();
+          return false;
         }
         closeRoomChat();
         closeViewOnceMedia();
@@ -3559,15 +3775,28 @@
         stopTimer();
         $('online-modal').classList.add('hidden');
         $('double-modal').classList.add('hidden');
+        sessionMode = 'online';
+        offlineMode = false;
+        $('session-mode-modal').classList.add('hidden');
+        $('offline-bar').classList.add('hidden');
         setOnlineChrome(true);
+        setRoomConnectionState('connected');
         applyRoom(data.room, true);
+        rememberRoom(roomId);
+        syncSessionControls();
         showToast('Joined the online game! 🌐', 'success');
         roomPollTimer = setTimeout(pollRoom, 2000);
+        return true;
       }
 
-      async function exitOnline() {
+      async function exitOnline(forgetSavedRoom = false) {
         clearTimeout(roomPollTimer);
         onlineRoom = null;
+        if (forgetSavedRoom) forgetRoom();
+        roomConnectionState = 'connected';
+        reconnectAttempts = 0;
+        sessionMode = profile ? 'offline' : null;
+        offlineMode = Boolean(profile);
         roomSig = null;
         deferredRoom = null;
         lastSelectedPlayer = null;
@@ -3575,6 +3804,7 @@
         resultArea.classList.add('hidden');
         $('double-modal').classList.add('hidden');
         setOnlineChrome(false);
+        syncSessionControls();
         if (localSnapshot) {
           items = localSnapshot.items;
           playerEmojis = localSnapshot.playerEmojis;
@@ -3631,13 +3861,14 @@
         if (!onlineRoom) return;
         if (!confirm('Leave this online game? You will need a new invite to rejoin.')) return;
         await sendRoomAction({ type: 'leave' });
-        exitOnline();
+        exitOnline(true);
         showToast('You left the online game.', 'info');
       });
 
       // ----- INITIALIZATION -----
       function init() {
         applyTheme('child');
+        syncLevelButtons();
         loadCommunityTasks();
         buildEmojiGrid();
         renderChips();

@@ -42,7 +42,23 @@ export default async (request: Request) => {
     try {
       body = await request.json();
     } catch {
-      return json({ error: "Please send a valid invite." }, 400);
+      return json({ error: "Please send a valid room request or invite." }, 400);
+    }
+
+    if (body.action === "create_room") {
+      const me = await getOrCreateProfile(user);
+      const players: RoomPlayer[] = [{ userId: user.id, displayName: me.displayName }];
+      const [room] = await db
+        .insert(gameRooms)
+        .values({
+          createdBy: user.id,
+          status: "lobby",
+          players,
+          state: initialRoomState(players),
+        })
+        .returning();
+
+      return json({ roomId: room.id }, 201);
     }
 
     const toDisplayName = typeof body.toDisplayName === "string" ? body.toDisplayName.trim() : "";
