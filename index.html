@@ -870,9 +870,34 @@
           <span>➕</span> Task
         </button>
         <button id="history-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">📋</button>
+        <button id="music-toggle" type="button" aria-expanded="false" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Open theme music">🎵 Music</button>
         <button id="sound-toggle" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">🔊</button>
       </div>
     </div>
+
+    <section id="theme-music-panel" class="hidden frost-panel mb-4" aria-label="Theme music player">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="min-w-0">
+          <h2 class="text-lg font-black">🎵 Theme music</h2>
+          <p id="theme-music-status" class="text-xs opacity-75 mt-1" role="status" aria-live="polite">Choose a song, then press play. Music starts only when you choose.</p>
+        </div>
+        <label for="theme-track-select" class="flex-1 sm:max-w-sm min-w-0">
+          <span class="sr-only">Choose a theme song</span>
+          <select id="theme-track-select" class="w-full rounded-xl px-3 py-2 bg-slate-900/80 border border-white/25 text-white outline-none focus:ring-2 focus:ring-amber-400"></select>
+        </label>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="music-previous" type="button" class="rounded-full px-3 py-2 bg-white/10 border border-white/20 hover:bg-white/20" aria-label="Previous song">⏮</button>
+          <button id="music-play" type="button" class="rounded-full px-5 py-2 font-black bg-gradient-to-r from-amber-300 to-orange-500 text-black">▶ Play</button>
+          <button id="music-next" type="button" class="rounded-full px-3 py-2 bg-white/10 border border-white/20 hover:bg-white/20" aria-label="Next song">⏭</button>
+          <button id="music-shuffle" type="button" aria-pressed="false" class="rounded-full px-3 py-2 bg-white/10 border border-white/20 hover:bg-white/20" title="Toggle shuffle">🔀</button>
+        </div>
+        <label for="music-volume" class="flex items-center gap-2 text-sm font-bold shrink-0">
+          <span aria-hidden="true">🔉</span><span class="sr-only">Music volume</span>
+          <input id="music-volume" type="range" min="0" max="1" step="0.05" value="0.35" class="w-24 accent-amber-400">
+        </label>
+      </div>
+      <audio id="theme-audio" preload="none"></audio>
+    </section>
 
     <!-- Level Selector -->
     <div class="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
@@ -2284,6 +2309,109 @@
         document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
         playClickSound();
         showToast(soundEnabled ? 'Sound ON' : 'Sound OFF', 'info');
+      });
+
+      const THEME_TRACKS = [
+        { title: 'Miss You Need You', src: 'assets/music/miss-you-need-you.m4a' },
+        { title: 'Love Fire', src: 'assets/music/love-fire.m4a' },
+        { title: 'Not to Go', src: 'assets/music/not-to-go.m4a' },
+        { title: 'Darkest Hour', src: 'assets/music/darkest-hour.m4a' },
+        { title: 'Titanic', src: 'assets/music/titanic.m4a' },
+        { title: 'Nzeka Vol. 1 (video)', src: 'assets/music/nzeka-vol-1-video.mp4' },
+        { title: 'Nzeka Vol. 1', src: 'assets/music/nzeka-vol-1.m4a' },
+        { title: 'Nzeka Vol. 2', src: 'assets/music/nzeka-vol-2.m4a' },
+        { title: 'Giving Up', src: 'assets/music/giving-up.m4a' },
+        { title: 'Chance', src: 'assets/music/chance.m4a' },
+        { title: 'No Stress', src: 'assets/music/no-stress.m4a' },
+      ];
+      const themeAudio = document.getElementById('theme-audio');
+      const themeTrackSelect = document.getElementById('theme-track-select');
+      const themeMusicStatus = document.getElementById('theme-music-status');
+      let themeTrackIndex = 0;
+      let themeShuffle = false;
+
+      THEME_TRACKS.forEach((track, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = track.title;
+        themeTrackSelect.appendChild(option);
+      });
+      themeAudio.volume = Number(document.getElementById('music-volume').value);
+
+      function selectThemeTrack(index, autoplay = false) {
+        themeTrackIndex = (index + THEME_TRACKS.length) % THEME_TRACKS.length;
+        themeTrackSelect.value = String(themeTrackIndex);
+        themeAudio.pause();
+        themeAudio.src = THEME_TRACKS[themeTrackIndex].src;
+        themeAudio.load();
+        themeMusicStatus.textContent = `Selected: ${THEME_TRACKS[themeTrackIndex].title}`;
+        document.getElementById('music-play').textContent = '▶ Play';
+        if (autoplay) playThemeMusic();
+      }
+
+      async function playThemeMusic() {
+        if (!themeAudio.src) selectThemeTrack(themeTrackIndex);
+        try {
+          await themeAudio.play();
+          themeMusicStatus.textContent = `Now playing: ${THEME_TRACKS[themeTrackIndex].title}`;
+          document.getElementById('music-play').textContent = '⏸ Pause';
+        } catch (error) {
+          console.error('Could not play theme music.', error);
+          themeMusicStatus.textContent = 'This song could not play. Try another track or check the browser audio format.';
+          document.getElementById('music-play').textContent = '▶ Play';
+        }
+      }
+
+      function skipThemeTrack(direction) {
+        let nextIndex;
+        if (themeShuffle && THEME_TRACKS.length > 1) {
+          do {
+            nextIndex = Math.floor(Math.random() * THEME_TRACKS.length);
+          } while (nextIndex === themeTrackIndex);
+        } else {
+          nextIndex = (themeTrackIndex + direction + THEME_TRACKS.length) % THEME_TRACKS.length;
+        }
+        selectThemeTrack(nextIndex, true);
+      }
+
+      document.getElementById('music-toggle').addEventListener('click', () => {
+        const panel = document.getElementById('theme-music-panel');
+        const opening = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !opening);
+        document.getElementById('music-toggle').setAttribute('aria-expanded', String(opening));
+        if (opening) themeTrackSelect.focus();
+      });
+
+      document.getElementById('music-play').addEventListener('click', () => {
+        if (themeAudio.paused) {
+          playThemeMusic();
+        } else {
+          themeAudio.pause();
+          themeMusicStatus.textContent = `Paused: ${THEME_TRACKS[themeTrackIndex].title}`;
+          document.getElementById('music-play').textContent = '▶ Play';
+        }
+      });
+      document.getElementById('music-previous').addEventListener('click', () => skipThemeTrack(-1));
+      document.getElementById('music-next').addEventListener('click', () => skipThemeTrack(1));
+      document.getElementById('music-shuffle').addEventListener('click', event => {
+        themeShuffle = !themeShuffle;
+        event.currentTarget.setAttribute('aria-pressed', String(themeShuffle));
+        event.currentTarget.classList.toggle('bg-amber-300', themeShuffle);
+        event.currentTarget.classList.toggle('text-black', themeShuffle);
+        themeMusicStatus.textContent = themeShuffle ? 'Shuffle is on.' : 'Shuffle is off.';
+      });
+      document.getElementById('music-volume').addEventListener('input', event => {
+        themeAudio.volume = Number(event.currentTarget.value);
+      });
+      themeTrackSelect.addEventListener('change', event => {
+        selectThemeTrack(Number(event.currentTarget.value), !themeAudio.paused);
+      });
+      themeAudio.addEventListener('ended', () => skipThemeTrack(1));
+      themeAudio.addEventListener('error', () => {
+        if (themeAudio.src) {
+          themeMusicStatus.textContent = 'This song could not load. Check the file or choose another track.';
+          document.getElementById('music-play').textContent = '▶ Play';
+        }
       });
 
       // Shuffle
