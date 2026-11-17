@@ -1344,7 +1344,12 @@
         <button id="auth-signup-tab" type="button" role="tab" aria-controls="auth-form" aria-selected="false" tabindex="-1" data-auth-tab="signup" class="auth-tab rounded-full py-2.5 text-sm font-black transition text-white">Create account</button>
       </div>
 
+      <p id="auth-signup-progress" class="hidden text-center text-xs uppercase tracking-widest font-black text-amber-200 mb-3" aria-live="polite"></p>
       <form id="auth-form" class="space-y-3" role="tabpanel" aria-labelledby="auth-login-tab" novalidate>
+        <div id="auth-signup-email-summary" class="hidden flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2">
+          <span id="auth-signup-email-text" class="min-w-0 break-all text-sm text-white/80"></span>
+          <button id="auth-signup-change-email" type="button" class="shrink-0 text-sm font-bold text-amber-200 hover:text-white underline underline-offset-2">Change</button>
+        </div>
         <div class="hidden" data-auth-field="displayName">
           <label for="auth-display-name" class="block text-sm font-bold text-white mb-1">Display name</label>
           <input id="auth-display-name" type="text" maxlength="24" autocomplete="nickname" autocapitalize="words" placeholder="How friends will find you" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
@@ -3328,6 +3333,7 @@
       let localGameStorageWarningShown = false;
       let latestInvites = { incoming: [], outgoing: [], rooms: [] };
       let authMode = 'login';
+      let signupStep = 1;
       let openOnlineAfterTutorial = false;
       let reconnectAttempts = 0;
       let roomConnectionState = 'connected';
@@ -3695,17 +3701,33 @@
         el.classList.remove('hidden');
       }
 
-      function setAuthMode(mode, focusInput = true) {
+      function authSubmitLabel(mode) {
+        if (mode === 'signup' && signupStep === 1) return 'Continue with email';
+        return {
+          login: 'Log in',
+          signup: 'Create account',
+          forgot: 'Send reset link',
+          reset: 'Save new password',
+        }[mode];
+      }
+
+      function setAuthMode(mode, focusInput = true, resetSignupStep = true) {
         authMode = mode;
+        if (mode === 'signup' && resetSignupStep) signupStep = 1;
         const fields = {
           login: ['email', 'password'],
-          signup: ['displayName', 'email', 'password'],
+          signup: signupStep === 1 ? ['email'] : ['displayName', 'password'],
           forgot: ['email'],
           reset: ['password'],
         }[mode];
+        const signupDetailsVisible = mode === 'signup' && signupStep === 2;
         document.querySelectorAll('[data-auth-field]').forEach(el => {
           el.classList.toggle('hidden', !fields.includes(el.dataset.authField));
         });
+        $('auth-signup-progress').classList.toggle('hidden', mode !== 'signup');
+        $('auth-signup-progress').textContent = signupStep === 1 ? 'Step 1 of 2 · Email' : 'Step 2 of 2 · Account details';
+        $('auth-signup-email-summary').classList.toggle('hidden', !signupDetailsVisible);
+        $('auth-signup-email-text').textContent = signupDetailsVisible ? $('auth-email').value.trim() : '';
         document.querySelectorAll('[data-auth-tab]').forEach(tab => {
           tab.classList.toggle('active', tab.dataset.authTab === mode);
           tab.setAttribute('aria-selected', String(tab.dataset.authTab === mode));
@@ -3714,23 +3736,20 @@
         $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
         $('auth-forgot').classList.toggle('hidden', mode !== 'login');
         $('auth-back').classList.toggle('hidden', mode !== 'forgot' && mode !== 'reset');
-        $('auth-display-name').required = mode === 'signup';
-        $('auth-email').required = mode !== 'reset';
-        $('auth-password').required = mode === 'login' || mode === 'signup' || mode === 'reset';
+        $('auth-display-name').required = signupDetailsVisible;
+        $('auth-email').required = mode !== 'reset' && !(mode === 'signup' && signupStep === 2);
+        $('auth-password').required = mode === 'login' || signupDetailsVisible || mode === 'reset';
         $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
         $('auth-password').type = 'password';
         $('auth-password-toggle').textContent = 'Show';
         $('auth-password-toggle').setAttribute('aria-label', 'Show password');
         $('auth-password-toggle').setAttribute('aria-pressed', 'false');
-        $('auth-submit').textContent = {
-          login: 'Log in',
-          signup: 'Create account',
-          forgot: 'Send reset link',
-          reset: 'Save new password',
-        }[mode];
+        $('auth-submit').textContent = authSubmitLabel(mode);
         $('auth-subtitle').textContent = {
           login: 'Log in to continue to your saved game or play with friends.',
-          signup: 'Create an account to start offline play, save progress, and join friends online.',
+          signup: signupStep === 1
+            ? 'Start with your email. Next, choose a display name and password.'
+            : 'Add a display name and password to finish creating your account.',
           forgot: "Enter your email and we'll send you a link to reset your password.",
           reset: 'Choose a new password for your account.',
         }[mode];
@@ -3829,6 +3848,7 @@
       });
       $('auth-forgot').addEventListener('click', () => setAuthMode('forgot'));
       $('auth-back').addEventListener('click', () => setAuthMode('login'));
+      $('auth-signup-change-email').addEventListener('click', () => setAuthMode('signup'));
       $('auth-password-toggle').addEventListener('click', () => {
         const password = $('auth-password');
         const isVisible = password.type === 'password';
@@ -3848,10 +3868,6 @@
 
       $('auth-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!identity) {
-          setAuthMessage('error', 'Still connecting. Please try again in a moment.');
-          return;
-        }
         const mode = authMode;
         const emailInput = $('auth-email');
         const email = emailInput.value.trim();
@@ -3866,6 +3882,15 @@
         if (mode !== 'reset' && !emailInput.validity.valid) {
           setAuthMessage('error', 'Enter a valid email address.');
           emailInput.focus();
+          return;
+        }
+        if (mode === 'signup' && signupStep === 1) {
+          signupStep = 2;
+          setAuthMode('signup', true, false);
+          return;
+        }
+        if (!identity) {
+          setAuthMessage('error', 'Still connecting. Please try again in a moment.');
           return;
         }
         if ((mode === 'login' || mode === 'signup' || mode === 'reset') && password.length < 6) {
@@ -3888,7 +3913,7 @@
           reset: 'Updating password...',
         };
         submit.textContent = submitLabels[mode];
-        const authNavigation = [...document.querySelectorAll('[data-auth-tab]'), $('auth-forgot'), $('auth-back')];
+        const authNavigation = [...document.querySelectorAll('[data-auth-tab]'), $('auth-forgot'), $('auth-back'), $('auth-signup-change-email')];
         authNavigation.forEach(button => { button.disabled = true; });
         setAuthMessage(null, '');
         try {
@@ -3918,12 +3943,7 @@
           setAuthMessage('error', friendlyAuthError(error, mode));
         } finally {
           submit.disabled = false;
-          submit.textContent = {
-            login: 'Log in',
-            signup: 'Create account',
-            forgot: 'Send reset link',
-            reset: 'Save new password',
-          }[authMode];
+          submit.textContent = authSubmitLabel(authMode);
           authNavigation.forEach(button => { button.disabled = false; });
         }
       });
