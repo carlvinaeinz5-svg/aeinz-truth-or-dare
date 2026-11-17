@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>AEINZ Truth or Dare Wheel • Ultimate</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Fredoka+One&family=Pacifico&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -611,13 +611,52 @@
       }
       
       .modal-content {
-        margin: 0.5rem;
-        padding: 1.25rem;
+        margin: 0;
+        padding: 1rem;
+        max-height: 90vh;
+        max-height: 90dvh;
+      }
+
+      .modal-overlay {
+        align-items: flex-start;
+        overflow-y: auto;
+        padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+      }
+
+      main {
+        padding-left: max(0.75rem, env(safe-area-inset-left));
+        padding-right: max(0.75rem, env(safe-area-inset-right));
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      }
+
+      button,
+      select {
+        min-height: 44px;
+        touch-action: manipulation;
+      }
+
+      input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+      textarea {
+        font-size: 16px;
+      }
+
+      .toast {
+        right: max(1rem, env(safe-area-inset-right));
+        bottom: max(1rem, env(safe-area-inset-bottom));
+        max-width: calc(100vw - 2rem);
+      }
+
+      #online-banner > div:last-child {
+        flex-wrap: wrap;
+      }
+
+      #result-area .task-card > div:last-child > div:last-child {
+        flex-wrap: wrap;
       }
       
       .emoji-option {
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
         font-size: 1.25rem;
       }
 
@@ -865,7 +904,7 @@
           <span>🛡️</span> Boundaries
         </button>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <button id="add-task-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
           <span>🌐</span> Community task
         </button>
