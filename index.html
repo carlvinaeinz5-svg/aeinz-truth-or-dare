@@ -872,6 +872,9 @@
         <button id="my-deck-btn" type="button" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
           <span>🗂️</span> My deck
         </button>
+        <button id="minigames-btn" type="button" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm font-bold hover:bg-white/20 transition flex items-center gap-1">
+          <span>🎮</span> Mini-games
+        </button>
         <button id="history-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">📋</button>
         <button id="music-toggle" type="button" aria-expanded="false" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Open theme music">🎵 Music</button>
         <button id="sound-toggle" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition">🔊</button>
@@ -883,6 +886,7 @@
         <div class="min-w-0">
           <h2 class="text-lg font-black">🎵 Theme music</h2>
           <p id="theme-music-status" class="text-xs opacity-75 mt-1" role="status" aria-live="polite">Choose a song, then press play. Music starts only when you choose.</p>
+          <p class="text-xs opacity-60 mt-1">MP3 audio is used for broad compatibility with current browsers.</p>
         </div>
         <label for="theme-track-select" class="flex-1 sm:max-w-sm min-w-0">
           <span class="sr-only">Choose a theme song</span>
@@ -1110,6 +1114,57 @@
     </div>
   </div>
 
+  <div id="minigames-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="minigames-title">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="flex justify-between items-start gap-4 mb-5">
+        <div>
+          <h3 id="minigames-title" class="text-xl sm:text-2xl font-black text-white">🎮 Mini-Games</h3>
+          <p class="text-sm text-white/70 mt-1">Quick party games for everyone playing together on this device.</p>
+        </div>
+        <button id="close-minigames" type="button" class="text-3xl leading-none text-white hover:text-white/70 transition" aria-label="Close mini-games">&times;</button>
+      </div>
+
+      <section id="mini-game-lobby">
+        <div class="rounded-2xl bg-purple-400/10 border border-purple-300/30 p-4 mb-4">
+          <p class="text-2xl mb-1">🗳️ Most Likely To</p>
+          <p class="text-sm text-white/75">Take turns voting for the player who best fits each prompt. Each vote earns one point. Pass the device between voters; votes are revealed after everyone has voted.</p>
+          <p class="text-xs text-amber-200/90 mt-2">Votes happen on one shared screen, so they aren’t private. Mini-games are for local play, save in this browser, and aren’t synced to online rooms.</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <h4 class="font-black text-white">🏆 Scoreboard</h4>
+          <div class="flex gap-2">
+            <button id="mini-game-reset" type="button" class="rounded-full px-3 py-2 text-xs font-bold bg-white/10 border border-white/20 hover:bg-white/20 transition">Reset scores</button>
+            <button id="mini-game-start" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition">Start game</button>
+          </div>
+        </div>
+        <div id="mini-game-scoreboard" class="space-y-2" aria-live="polite"></div>
+      </section>
+
+      <section id="mini-game-round" class="hidden">
+        <p id="mini-game-vote-progress" class="text-xs uppercase tracking-widest font-black text-amber-200 mb-3" aria-live="polite"></p>
+        <div class="rounded-2xl bg-white/10 border border-white/20 p-5 mb-4 text-center">
+          <p class="text-xs uppercase tracking-widest text-white/60 mb-2">Who is most likely to...</p>
+          <p id="mini-game-prompt" class="text-xl sm:text-2xl font-black text-white"></p>
+        </div>
+        <p class="text-sm font-bold text-white mb-3">It’s <span id="mini-game-voter" class="text-amber-200"></span>’s turn to vote. Choose a player:</p>
+        <div id="mini-game-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </section>
+
+      <section id="mini-game-results" class="hidden">
+        <div class="rounded-2xl bg-white/10 border border-white/20 p-4 mb-4 text-center">
+          <p class="text-xs uppercase tracking-widest text-white/60 mb-2">The prompt was</p>
+          <p id="mini-game-result-prompt" class="text-lg font-black text-white"></p>
+        </div>
+        <h4 class="font-black text-white mb-3">Round results</h4>
+        <div id="mini-game-round-results" class="space-y-2 mb-5" aria-live="polite"></div>
+        <div class="flex flex-wrap justify-end gap-2">
+          <button id="mini-game-back" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20 transition">Scoreboard</button>
+          <button id="mini-game-next-round" type="button" class="rounded-full px-4 py-2 text-sm font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition">Next round</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <div id="boundaries-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="flex justify-between items-start gap-4 mb-4">
@@ -1143,7 +1198,7 @@
           <label for="task-prompt" class="block text-sm font-bold text-white mb-2">Task</label>
           <textarea id="task-prompt" maxlength="240" required rows="4" placeholder="Write a fun truth question or dare..." class="w-full rounded-2xl px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition resize-none"></textarea>
           <div class="flex justify-between mt-1 text-xs text-white/60">
-            <span>Keep it clear, safe, and fun.</span>
+            <span>Shared prompts are not pre-moderated. Child's Play uses built-in prompts only.</span>
             <span id="task-character-count">0 / 240</span>
           </div>
         </div>
@@ -1158,8 +1213,8 @@
           <div>
             <label for="task-level" class="block text-sm font-bold text-white mb-2">Level</label>
             <select id="task-level" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400">
-              <option value="child" class="bg-gray-800">🧸 Child</option>
-              <option value="pleasing" class="bg-gray-800">😇 Pleasing</option>
+              <option value="child" class="bg-gray-800" disabled>🧸 Child (built-in only)</option>
+              <option value="pleasing" class="bg-gray-800" selected>😇 Pleasing</option>
               <option value="dirty" class="bg-gray-800">🌶️ Dirty 18+</option>
             </select>
           </div>
@@ -1275,39 +1330,41 @@
 
   <!-- Auth Modal -->
   <div id="auth-modal" class="modal-overlay" data-locked="true">
-    <div class="modal-content" style="max-width: 440px;">
+    <div class="modal-content" style="max-width: 460px;">
       <div class="text-center mb-5">
+        <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-500 text-2xl shadow-lg" aria-hidden="true">🎲</div>
         <h3 class="text-gradient text-4xl font-black leading-tight">AEINZ</h3>
         <p class="text-white font-bold opacity-90">Truth or Dare</p>
-        <p id="auth-subtitle" class="text-sm text-white/70 mt-2">Sign in first, then choose an Offline or Online session.</p>
+        <p class="text-sm text-amber-200 font-bold mt-3">Your next round starts here.</p>
+        <p id="auth-subtitle" class="text-sm text-white/70 mt-1">Log in to continue to your game.</p>
       </div>
 
-      <div id="auth-tabs" class="grid grid-cols-2 gap-1 p-1 rounded-full bg-white/10 mb-5">
-        <button type="button" data-auth-tab="login" class="auth-tab rounded-full py-2 text-sm font-black transition text-white">Log in</button>
-        <button type="button" data-auth-tab="signup" class="auth-tab rounded-full py-2 text-sm font-black transition text-white">Sign up</button>
+      <div id="auth-tabs" role="tablist" aria-label="Account access" class="grid grid-cols-2 gap-1 p-1 rounded-full bg-white/10 mb-5">
+        <button id="auth-login-tab" type="button" role="tab" aria-controls="auth-form" aria-selected="true" tabindex="0" data-auth-tab="login" class="auth-tab active rounded-full py-2.5 text-sm font-black transition text-white">Log in</button>
+        <button id="auth-signup-tab" type="button" role="tab" aria-controls="auth-form" aria-selected="false" tabindex="-1" data-auth-tab="signup" class="auth-tab rounded-full py-2.5 text-sm font-black transition text-white">Create account</button>
       </div>
 
-      <form id="auth-form" class="space-y-3" novalidate>
-        <div data-auth-field="displayName">
+      <form id="auth-form" class="space-y-3" role="tabpanel" aria-labelledby="auth-login-tab" novalidate>
+        <div class="hidden" data-auth-field="displayName">
           <label for="auth-display-name" class="block text-sm font-bold text-white mb-1">Display name</label>
-          <input id="auth-display-name" type="text" maxlength="24" autocomplete="nickname" placeholder="How friends will find you" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+          <input id="auth-display-name" type="text" maxlength="24" autocomplete="nickname" autocapitalize="words" placeholder="How friends will find you" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
           <p class="text-xs text-white/60 mt-1 px-2">Friends invite you to online games using this name.</p>
         </div>
         <div data-auth-field="email">
           <label for="auth-email" class="block text-sm font-bold text-white mb-1">Email</label>
-          <input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+          <input id="auth-email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com" required class="w-full rounded-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
         </div>
         <div data-auth-field="password">
           <label for="auth-password" class="block text-sm font-bold text-white mb-1">Password</label>
           <div class="relative">
-            <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" class="w-full rounded-full px-4 py-3 pr-20 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
-            <button id="auth-password-toggle" type="button" aria-pressed="false" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/70 hover:text-white">Show</button>
+            <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" required class="w-full rounded-full px-4 py-3 pr-20 bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-amber-400 transition">
+            <button id="auth-password-toggle" type="button" aria-label="Show password" aria-pressed="false" class="absolute right-3 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs font-bold text-white/70 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300">Show</button>
           </div>
           <p class="text-xs text-white/60 mt-1 px-2">Use at least 6 characters. Choose a password you don't use elsewhere.</p>
         </div>
         <p id="auth-error" class="hidden text-sm font-bold text-red-300 bg-red-500/15 border border-red-400/30 rounded-xl px-3 py-2" role="alert"></p>
         <p id="auth-info" class="hidden text-sm font-bold text-emerald-200 bg-emerald-500/15 border border-emerald-400/30 rounded-xl px-3 py-2" role="status"></p>
-        <button id="auth-submit" type="submit" class="w-full rounded-full px-6 py-3 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition disabled:opacity-60 disabled:hover:scale-100">Log in</button>
+        <button id="auth-submit" type="submit" class="w-full rounded-full px-6 py-3.5 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black shadow-lg shadow-orange-950/30 hover:scale-[1.02] transition disabled:opacity-60 disabled:hover:scale-100">Log in</button>
       </form>
 
       <div class="flex justify-between items-center mt-4 text-sm">
@@ -1407,7 +1464,7 @@
   </div>
 
   <footer class="relative z-10 text-center py-6 px-4 text-sm opacity-70">
-    <p>&copy; 2026 <strong>C.AEINZ.ORG.UG</strong> / MADE by <strong>Aeinz the DESID</strong></p>
+    <p>&copy; 2026 <strong>C.AEINZ.ORG.UG</strong> / MADE by <strong>Aeinz made the DESIGNER</strong></p>
   </footer>
 
   <script>
@@ -1441,13 +1498,19 @@
       let audioCtx;
       
       function initAudio() {
+        if (!AudioContext) return;
         if (!audioCtx) {
           audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(error => console.error('Could not resume audio playback.', error));
         }
       }
       
       function playSound(frequency, duration, type = 'sine', volume = 0.1) {
-        if (!soundEnabled || !audioCtx) return;
+        if (!soundEnabled) return;
+        initAudio();
+        if (!audioCtx) return;
         
         try {
           const oscillator = audioCtx.createOscillator();
@@ -1463,8 +1526,8 @@
           
           oscillator.start(audioCtx.currentTime);
           oscillator.stop(audioCtx.currentTime + duration);
-        } catch (e) {
-          // Silently fail if audio context not ready
+        } catch (error) {
+          console.error('Could not play a sound effect.', error);
         }
       }
       
@@ -1473,7 +1536,10 @@
       }
       
       function playSpinSound() {
-        playSound(400, 0.3, 'triangle', 0.05);
+        const tickDelays = [0, 60, 130, 215, 315, 430, 560, 705, 865, 1040, 1230, 1435, 1655, 1890, 2140, 2405, 2685, 2980];
+        tickDelays.forEach((delay, index) => {
+          setTimeout(() => playSound(280 + index * 16, 0.045, 'triangle', 0.035), delay);
+        });
       }
       
       function playWinSound() {
@@ -1487,6 +1553,16 @@
         setTimeout(() => playSound(700, 0.1, 'square', 0.08), 100);
         setTimeout(() => playSound(900, 0.15, 'square', 0.08), 200);
         setTimeout(() => playSound(1100, 0.2, 'square', 0.1), 300);
+      }
+
+      function playRoundStartSound() {
+        [523, 659, 784].forEach((frequency, index) => {
+          setTimeout(() => playSound(frequency, 0.12, 'sine', 0.055), index * 95);
+        });
+      }
+
+      function playVoteSound() {
+        playSound(660, 0.075, 'sine', 0.045);
       }
 
       // ----- DATA -----
@@ -1517,6 +1593,7 @@
       let boundaries = { privacy: true };
       let spinHistory = [];
       let achievements = new Set();
+      let miniGameState = { players: [], scores: {}, usedPrompts: [], currentPrompt: '', votes: [], voterIndex: 0, phase: 'lobby' };
       let usedTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] }, wildcard: { truth: [], dare: [] } };
       let communityTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] } };
 
@@ -1801,30 +1878,68 @@
       };
 
       const wildcardTasks = {
-        truth: [
-          "If you had to marry someone in this room, who and why?",
-          "What's the most embarrassing thing in your search history?",
-          "Rate everyone in the room by attractiveness.",
-          "What's the biggest secret you're keeping from the group?",
-          "Describe your perfect partner in extreme detail.",
-          "What's the naughtiest thought you've had today?",
-          "If you could swap bodies with someone here, who?",
-          "What's the most scandalous rumor you've heard about yourself?",
-          "Describe your first kiss in slow motion.",
-          "What's the wildest fantasy you've never told anyone?"
-        ],
-        dare: [
-          "Do a body roll in slow motion.",
-          "Let the group go through your phone for 30 seconds.",
-          "Perform a lap dance on an empty chair.",
-          "Call your crush and confess something.",
-          "Do a trust fall with the person behind you.",
-          "Let someone blindfold you for the next round.",
-          "Whisper your deepest secret to the person on your left.",
-          "Do your best impression of a sensual massage therapist.",
-          "Let someone write a status on your social media.",
-          "Do a dramatic reading of the last flirty text you sent."
-        ]
+        child: {
+          truth: [
+            "If you could invent a new holiday, what would it celebrate?",
+            "Which player would be best at building a blanket fort?",
+            "What silly superpower would help you at school?",
+            "What would you name a friendly dragon?",
+            "Which player could make up the funniest song?",
+            "If your toys had a parade, what would lead it?"
+          ],
+          dare: [
+            "Make up a three-move dance; everyone can choose whether to copy it.",
+            "Do your best robot walk for ten seconds.",
+            "Invent a silly superhero name for yourself.",
+            "Tell a joke or make your funniest face.",
+            "Draw an imaginary snack in the air with your finger.",
+            "Act like a sleepy cat until someone guesses the animal."
+          ]
+        },
+        pleasing: {
+          truth: [
+            "What small adventure would you plan for this group?",
+            "Which player would be best at hosting a game night?",
+            "What is a skill you would enjoy learning together?",
+            "What song makes you feel confident?",
+            "Which player would be most likely to make a new friend on a trip?",
+            "What is one harmless rule you would invent for a fun night?"
+          ],
+          dare: [
+            "Give the group a ten-second pep talk.",
+            "Make up a group handshake; anyone may pass.",
+            "Perform a dramatic reading of a made-up weather report.",
+            "Invent a fun award for each person.",
+            "Invite the group to copy one dance move; no one has to join.",
+            "Introduce yourself like a game-show host."
+          ]
+        },
+        dirty: {
+          truth: [
+            "If you had to marry someone in this room, who and why?",
+            "What's the most embarrassing thing in your search history?",
+            "Rate everyone in the room by attractiveness.",
+            "What's the biggest secret you're keeping from the group?",
+            "Describe your perfect partner in extreme detail.",
+            "What's the naughtiest thought you've had today?",
+            "If you could swap bodies with someone here, who?",
+            "What's the most scandalous rumor you've heard about yourself?",
+            "Describe your first kiss in slow motion.",
+            "What's the wildest fantasy you've never told anyone?"
+          ],
+          dare: [
+            "Do a body roll in slow motion.",
+            "Let the group go through your phone for 30 seconds.",
+            "Perform a lap dance on an empty chair.",
+            "Call your crush and confess something.",
+            "Do a trust fall with the person behind you.",
+            "Let someone blindfold you for the next round.",
+            "Whisper your deepest secret to the person on your left.",
+            "Do your best impression of a sensual massage therapist.",
+            "Let someone write a status on your social media.",
+            "Do a dramatic reading of the last flirty text you sent."
+          ]
+        }
       };
 
       const bonusQuestions = [
@@ -1836,6 +1951,27 @@
         "Who's the funniest person in the room? 😂",
         "Who's most likely to streak across a football field? 🏃",
         "Who tells the worst jokes? 🥁"
+      ];
+
+      const miniGamePrompts = [
+        'make everyone laugh?',
+        'become famous?',
+        'plan the best party?',
+        'survive on a deserted island?',
+        'remember everyone’s birthday?',
+        'start a dance party?',
+        'win a trivia contest?',
+        'become a great chef?',
+        'find a hidden treasure?',
+        'make friends with a stranger?',
+        'tell the best story?',
+        'be the first to try a new hobby?',
+        'get lost even with a map?',
+        'cheer everyone up?',
+        'become a game-show host?',
+        'keep a straight face during a silly challenge?',
+        'organize the next group adventure?',
+        'make up a song on the spot?'
       ];
       
       const penalties = [
@@ -1878,7 +2014,7 @@
 
           communityTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] } };
           data.tasks.forEach(task => {
-            if (communityTasks[task.level] && communityTasks[task.level][task.type]) {
+            if (task.level !== 'child' && communityTasks[task.level] && communityTasks[task.level][task.type]) {
               communityTasks[task.level][task.type].push(task.prompt);
             }
           });
@@ -2047,19 +2183,20 @@
         
         document.getElementById('player-count').textContent = `${items.length} player${items.length !== 1 ? 's' : ''}`;
         document.getElementById('player-count-dash').textContent = items.length;
+        queueLocalGameSave();
       }
 
       function getRandomTask() {
         const coinFlip = Math.random() < 0.5 ? 'truth' : 'dare';
-        let poolKey = wildcardMode ? 'wildcard' : `${currentLevel}:${currentPromptTheme}:${includeCustomTasks}`;
-        let pool = wildcardMode ? wildcardTasks : tasks[currentLevel];
+        let poolKey = wildcardMode ? `wildcard:${currentLevel}` : `${currentLevel}:${currentPromptTheme}:${includeCustomTasks}`;
+        let pool = wildcardMode ? wildcardTasks[currentLevel] : tasks[currentLevel];
         let taskList = pool[coinFlip] || pool.truth;
 
         if (!wildcardMode) {
           taskList = [
             ...taskList,
             ...(currentPromptTheme === 'classic' ? [] : themedTasks[currentPromptTheme][currentLevel][coinFlip]),
-            ...communityTasks[currentLevel][coinFlip],
+            ...(currentLevel === 'child' ? [] : communityTasks[currentLevel][coinFlip]),
             ...(includeCustomTasks
               ? myCustomTasks.filter(task => task.level === currentLevel && task.type === coinFlip).map(task => task.prompt)
               : [])
@@ -2088,7 +2225,7 @@
         return /\b(?:phone|mobile|social media|search history|photo gallery|profile picture|private messages?|text message|last text|text you (?:received|sent)|call (?:a friend|your crush)|contact(?:ing)? (?:someone|other people|a friend)|send(?:ing)? (?:a|one|someone)? ?(?:message|text)|post(?:ing)? (?:a|your) (?:funny )?selfie|scroll through your)\b/i.test(task);
       }
 
-      function displayTask(taskData, playerName = null) {
+      function displayTask(taskData, playerName = null, restoring = false) {
         const displayPlayer = playerName || lastSelectedPlayer;
         if (!displayPlayer) return;
         
@@ -2107,11 +2244,14 @@
         resultArea.classList.remove('hidden');
         winnerNameEl.textContent = displayPlayer;
         
-        if (!onlineRoom) addToHistory(displayPlayer, task, type);
+        if (!onlineRoom && !restoring) addToHistory(displayPlayer, task, type);
         
-        if (timerActive) startTimer();
-        spawnConfetti();
-        if (!onlineRoom) checkAchievements();
+        if (!restoring) {
+          if (timerActive) startTimer();
+          spawnConfetti();
+          if (!onlineRoom) checkAchievements();
+        }
+        queueLocalGameSave();
       }
 
       function displayAutoTask() {
@@ -2246,12 +2386,174 @@
         setTimeout(() => toast.remove(), 3000);
       }
 
+      function miniGamePlayersMatch() {
+        return miniGameState.players.length === items.length &&
+          miniGameState.players.every((player, index) => player === items[index]);
+      }
+
+      function renderMiniGameLobby() {
+        miniGameState.phase = 'lobby';
+        queueLocalGameSave();
+        $('mini-game-lobby').classList.remove('hidden');
+        $('mini-game-round').classList.add('hidden');
+        $('mini-game-results').classList.add('hidden');
+        $('mini-game-start').disabled = items.length < 2;
+        $('mini-game-start').textContent = miniGameState.players.length ? 'Start next round' : 'Start game';
+
+        const scoreboard = $('mini-game-scoreboard');
+        scoreboard.replaceChildren();
+        if (!miniGameState.players.length) {
+          const empty = document.createElement('p');
+          empty.className = 'text-sm text-white/70 rounded-xl bg-white/5 p-3';
+          empty.textContent = items.length < 2
+            ? 'Add at least two players to start a mini-game.'
+            : 'Start a game to create the scoreboard.';
+          scoreboard.appendChild(empty);
+          return;
+        }
+
+        const rankedPlayers = miniGameState.players.slice().sort((a, b) =>
+          miniGameState.scores[b] - miniGameState.scores[a] ||
+          miniGameState.players.indexOf(a) - miniGameState.players.indexOf(b)
+        );
+        rankedPlayers.forEach((player, index) => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-3 rounded-xl bg-white/10 border border-white/10 px-4 py-3';
+          const name = document.createElement('span');
+          name.className = 'font-bold text-white truncate';
+          name.textContent = `${index === 0 && miniGameState.scores[player] > 0 ? '👑 ' : ''}${player}`;
+          const score = document.createElement('span');
+          score.className = 'shrink-0 rounded-full bg-amber-400/20 border border-amber-300/30 px-3 py-1 text-sm font-black text-amber-100';
+          score.textContent = `${miniGameState.scores[player]} pt${miniGameState.scores[player] === 1 ? '' : 's'}`;
+          row.append(name, score);
+          scoreboard.appendChild(row);
+        });
+      }
+
+      function showMiniGameResults() {
+        miniGameState.phase = 'results';
+        queueLocalGameSave();
+        $('mini-game-round').classList.add('hidden');
+        $('mini-game-results').classList.remove('hidden');
+        $('mini-game-result-prompt').textContent = `Who is most likely to ${miniGameState.currentPrompt}`;
+
+        const roundCounts = Object.fromEntries(miniGameState.players.map(player => [player, 0]));
+        miniGameState.votes.forEach(player => { roundCounts[player]++; });
+        const rankedPlayers = miniGameState.players.slice().sort((a, b) =>
+          roundCounts[b] - roundCounts[a] ||
+          miniGameState.scores[b] - miniGameState.scores[a] ||
+          miniGameState.players.indexOf(a) - miniGameState.players.indexOf(b)
+        );
+        const results = $('mini-game-round-results');
+        results.replaceChildren();
+        rankedPlayers.forEach(player => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-3 rounded-xl bg-white/10 border border-white/10 px-4 py-3';
+          const name = document.createElement('span');
+          name.className = 'font-bold text-white truncate';
+          name.textContent = `${roundCounts[player] === Math.max(...Object.values(roundCounts)) ? '🎉 ' : ''}${player}`;
+          const score = document.createElement('span');
+          score.className = 'shrink-0 text-sm font-black text-amber-100';
+          score.textContent = `${roundCounts[player]} vote${roundCounts[player] === 1 ? '' : 's'} · ${miniGameState.scores[player]} total`;
+          row.append(name, score);
+          results.appendChild(row);
+        });
+      }
+
+      function renderMiniGameVote() {
+        miniGameState.phase = 'voting';
+        queueLocalGameSave();
+        $('mini-game-lobby').classList.add('hidden');
+        $('mini-game-round').classList.remove('hidden');
+        $('mini-game-results').classList.add('hidden');
+        $('mini-game-vote-progress').textContent = `Vote ${miniGameState.voterIndex + 1} of ${miniGameState.players.length}`;
+        $('mini-game-voter').textContent = miniGameState.players[miniGameState.voterIndex];
+
+        const choices = $('mini-game-choices');
+        choices.replaceChildren();
+        miniGameState.players.forEach(player => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'rounded-xl px-4 py-3 text-left font-bold text-white bg-white/10 border border-white/20 hover:bg-white/20 transition';
+          button.textContent = `👤 ${player}`;
+          button.addEventListener('click', () => {
+            miniGameState.votes.push(player);
+            miniGameState.scores[player]++;
+            miniGameState.voterIndex++;
+            playVoteSound();
+            if (miniGameState.voterIndex >= miniGameState.players.length) {
+              playWinSound();
+              showMiniGameResults();
+            } else {
+              renderMiniGameVote();
+            }
+          });
+          choices.appendChild(button);
+        });
+      }
+
+      function startMiniGameRound() {
+        if (onlineRoom || sessionMode === 'online') {
+          showToast('Mini-games are currently for local play. Switch to Local mode first.', 'info');
+          return;
+        }
+        if (items.length < 2) {
+          showToast('Add at least two players before starting a mini-game.', 'warning');
+          return;
+        }
+        if (!miniGameState.players.length || !miniGamePlayersMatch()) {
+          miniGameState = {
+            players: items.slice(),
+            scores: Object.fromEntries(items.map(player => [player, 0])),
+            usedPrompts: [],
+            currentPrompt: '',
+            votes: [],
+            voterIndex: 0,
+            phase: 'lobby'
+          };
+        }
+
+        let availablePrompts = miniGamePrompts.filter(prompt => !miniGameState.usedPrompts.includes(prompt));
+        if (!availablePrompts.length) {
+          miniGameState.usedPrompts = [];
+          availablePrompts = miniGamePrompts.slice();
+        }
+        miniGameState.currentPrompt = availablePrompts[Math.floor(Math.random() * availablePrompts.length)];
+        miniGameState.usedPrompts.push(miniGameState.currentPrompt);
+        miniGameState.votes = [];
+        miniGameState.voterIndex = 0;
+        $('mini-game-prompt').textContent = miniGameState.currentPrompt;
+        playRoundStartSound();
+        renderMiniGameVote();
+      }
+
+      function openMiniGames() {
+        if (onlineRoom || sessionMode === 'online') {
+          showToast('Mini-games are currently for local play. Switch to Local mode first.', 'info');
+          return;
+        }
+        if (miniGameState.players.length && !miniGamePlayersMatch()) {
+          miniGameState = { players: [], scores: {}, usedPrompts: [], currentPrompt: '', votes: [], voterIndex: 0, phase: 'lobby' };
+          showToast('The player list changed, so the mini-game scoreboard was reset.', 'info');
+        }
+        $('minigames-modal').classList.remove('hidden');
+        if (miniGameState.phase === 'voting') {
+          $('mini-game-prompt').textContent = miniGameState.currentPrompt;
+          renderMiniGameVote();
+        } else if (miniGameState.phase === 'results') {
+          showMiniGameResults();
+        } else {
+          renderMiniGameLobby();
+        }
+      }
+
       function updateUI() {
         spinBtn.disabled = items.length < 2 || spinning;
         document.getElementById('total-spins').textContent = totalSpins;
         document.getElementById('completed-tasks').textContent = completedTasks;
         document.getElementById('streak-count').textContent = streakCount;
         drawWheel();
+        queueLocalGameSave();
       }
 
       function applyTheme(level) {
@@ -2291,6 +2593,7 @@
         if (footer) {
           footer.style.color = level === 'child' ? '#5d4037' : (level === 'pleasing' ? '#004d40' : '#ffb3c6');
         }
+        queueLocalGameSave();
       }
 
       function buildEmojiGrid() {
@@ -2385,6 +2688,7 @@
         setTimeout(() => {
           resultArea.classList.add('hidden');
           lastSelectedPlayer = null;
+          queueLocalGameSave();
         }, 2000);
         showToast('Task completed! +1 streak 🔥', 'success');
         spawnConfetti();
@@ -2415,6 +2719,7 @@
           setTimeout(() => {
             resultArea.classList.add('hidden');
             lastSelectedPlayer = null;
+            queueLocalGameSave();
           }, 2000);
         }
       });
@@ -2453,6 +2758,7 @@
           timerBtn.style.background = '';
           stopTimer();
         }
+        queueLocalGameSave();
       });
 
       // Timer duration
@@ -2469,6 +2775,7 @@
             startTimer();
           }
         }
+        queueLocalGameSave();
       });
 
       // Wildcard toggle
@@ -2490,6 +2797,7 @@
 
       function syncBoundaryControl() {
         privacyBoundaryInput.checked = boundaries.privacy;
+        queueLocalGameSave();
       }
 
       document.getElementById('boundaries-btn').addEventListener('click', () => {
@@ -2516,6 +2824,7 @@
         if (enabled && lastSelectedPlayer && isPrivacySensitiveTask(taskTextEl.textContent)) {
           displayTask(getRandomTask());
         }
+        queueLocalGameSave();
         showToast(enabled ? 'Phone and privacy prompts filtered.' : 'Phone and privacy prompts allowed.', 'info');
       });
 
@@ -2525,21 +2834,22 @@
         soundEnabled = !soundEnabled;
         document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
         playClickSound();
+        queueLocalGameSave();
         showToast(soundEnabled ? 'Sound ON' : 'Sound OFF', 'info');
       });
 
       const THEME_TRACKS = [
-        { title: 'Miss You Need You', src: 'assets/music/miss-you-need-you.m4a' },
-        { title: 'Love Fire', src: 'assets/music/love-fire.m4a' },
-        { title: 'Not to Go', src: 'assets/music/not-to-go.m4a' },
-        { title: 'Darkest Hour', src: 'assets/music/darkest-hour.m4a' },
-        { title: 'Titanic', src: 'assets/music/titanic.m4a' },
-        { title: 'Nzeka Vol. 1 (video)', src: 'assets/music/nzeka-vol-1-video.mp4' },
-        { title: 'Nzeka Vol. 1', src: 'assets/music/nzeka-vol-1.m4a' },
-        { title: 'Nzeka Vol. 2', src: 'assets/music/nzeka-vol-2.m4a' },
-        { title: 'Giving Up', src: 'assets/music/giving-up.m4a' },
-        { title: 'Chance', src: 'assets/music/chance.m4a' },
-        { title: 'No Stress', src: 'assets/music/no-stress.m4a' },
+        { title: 'Miss You Need You', src: 'assets/music/miss-you-need-you.mp3' },
+        { title: 'Love Fire', src: 'assets/music/love-fire.mp3' },
+        { title: 'Not to Go', src: 'assets/music/not-to-go.mp3' },
+        { title: 'Darkest Hour', src: 'assets/music/darkest-hour.mp3' },
+        { title: 'Titanic', src: 'assets/music/titanic.mp3' },
+        { title: 'Nzeka Vol. 1 (audio)', src: 'assets/music/nzeka-vol-1-video.mp3' },
+        { title: 'Nzeka Vol. 1', src: 'assets/music/nzeka-vol-1.mp3' },
+        { title: 'Nzeka Vol. 2', src: 'assets/music/nzeka-vol-2.mp3' },
+        { title: 'Giving Up', src: 'assets/music/giving-up.mp3' },
+        { title: 'Chance', src: 'assets/music/chance.mp3' },
+        { title: 'No Stress', src: 'assets/music/no-stress.mp3' },
       ];
       const themeAudio = document.getElementById('theme-audio');
       const themeTrackSelect = document.getElementById('theme-track-select');
@@ -2564,6 +2874,7 @@
         themeMusicStatus.textContent = `Selected: ${THEME_TRACKS[themeTrackIndex].title}`;
         document.getElementById('music-play').textContent = '▶ Play';
         if (autoplay) playThemeMusic();
+        queueLocalGameSave();
       }
 
       async function playThemeMusic() {
@@ -2616,9 +2927,11 @@
         event.currentTarget.classList.toggle('bg-amber-300', themeShuffle);
         event.currentTarget.classList.toggle('text-black', themeShuffle);
         themeMusicStatus.textContent = themeShuffle ? 'Shuffle is on.' : 'Shuffle is off.';
+        queueLocalGameSave();
       });
       document.getElementById('music-volume').addEventListener('input', event => {
         themeAudio.volume = Number(event.currentTarget.value);
+        queueLocalGameSave();
       });
       themeTrackSelect.addEventListener('change', event => {
         selectThemeTrack(Number(event.currentTarget.value), !themeAudio.paused);
@@ -2929,6 +3242,29 @@
       });
       document.getElementById('export-history').addEventListener('click', exportHistory);
 
+      $('minigames-btn').addEventListener('click', openMiniGames);
+      $('close-minigames').addEventListener('click', () => {
+        playClickSound();
+        $('minigames-modal').classList.add('hidden');
+      });
+      $('mini-game-start').addEventListener('click', () => {
+        playClickSound();
+        startMiniGameRound();
+      });
+      $('mini-game-next-round').addEventListener('click', () => {
+        playClickSound();
+        startMiniGameRound();
+      });
+      $('mini-game-back').addEventListener('click', () => {
+        playClickSound();
+        renderMiniGameLobby();
+      });
+      $('mini-game-reset').addEventListener('click', () => {
+        playClickSound();
+        miniGameState = { players: [], scores: {}, usedPrompts: [], currentPrompt: '', votes: [], voterIndex: 0, phase: 'lobby' };
+        renderMiniGameLobby();
+      });
+
       // Close modals on overlay click
       document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
@@ -2987,6 +3323,9 @@
       let voiceNote = null;
       let voicePreviewUrl = null;
       let saveTimer = null;
+      let localGameSaveTimer = null;
+      let restoringLocalGame = false;
+      let localGameStorageWarningShown = false;
       let latestInvites = { incoming: [], outgoing: [], rooms: [] };
       let authMode = 'login';
       let openOnlineAfterTutorial = false;
@@ -3109,6 +3448,230 @@
         updateUI();
       }
 
+      function localGameStorageKey() {
+        return profile ? `aeinz-local-game-v1:${encodeURIComponent(profile.displayName.toLowerCase())}` : null;
+      }
+
+      function queueLocalGameSave() {
+        if (!profile || sessionMode !== 'offline' || onlineRoom || restoringLocalGame) return;
+        clearTimeout(localGameSaveTimer);
+        localGameSaveTimer = setTimeout(saveLocalGame, 400);
+      }
+
+      function saveLocalGame() {
+        clearTimeout(localGameSaveTimer);
+        localGameSaveTimer = null;
+        if (!profile || sessionMode !== 'offline' || onlineRoom || restoringLocalGame) return false;
+
+        const hasActiveTask = !resultArea.classList.contains('hidden');
+        const currentEntry = hasActiveTask && lastSelectedPlayer && spinHistory[0] && spinHistory[0].player === lastSelectedPlayer
+          ? spinHistory[0]
+          : null;
+        const state = {
+          version: 1,
+          profile: profile.displayName,
+          savedAt: Date.now(),
+          items: items.slice(0, 100),
+          playerEmojis: { ...playerEmojis },
+          selectedEmoji,
+          currentLevel,
+          currentPromptTheme,
+          includeCustomTasks,
+          wildcardMode,
+          boundaries: { privacy: Boolean(boundaries.privacy) },
+          spinHistory: spinHistory.slice(0, 50),
+          totalSpins,
+          completedTasks,
+          streakCount,
+          achievements: [...achievements],
+          usedTasks,
+          selectedPlayer: currentEntry ? lastSelectedPlayer : null,
+          currentTask: currentEntry ? { task: currentEntry.task, type: currentEntry.type } : null,
+          timerSetting: $('timer-duration').value,
+          miniGameState,
+          soundEnabled,
+          musicTrackIndex: themeTrackIndex,
+          musicVolume: themeAudio.volume,
+          musicShuffle: themeShuffle,
+        };
+
+        try {
+          localStorage.setItem(localGameStorageKey(), JSON.stringify(state));
+          return true;
+        } catch (error) {
+          console.error('Could not save the local game.', error);
+          if (!localGameStorageWarningShown) {
+            showToast('This browser could not save your game. Check its storage settings.', 'warning');
+            localGameStorageWarningShown = true;
+          }
+          return false;
+        }
+      }
+
+      function restoreMiniGameState(saved) {
+        const emptyState = { players: [], scores: {}, usedPrompts: [], currentPrompt: '', votes: [], voterIndex: 0, phase: 'lobby' };
+        if (!saved || !Array.isArray(saved.players)) return emptyState;
+
+        const players = saved.players.filter(player => typeof player === 'string' && player.length <= 24).slice(0, 100);
+        const scores = {};
+        players.forEach(player => {
+          const score = saved.scores && saved.scores[player];
+          scores[player] = Number.isSafeInteger(score) && score >= 0 ? score : 0;
+        });
+        const votes = Array.isArray(saved.votes)
+          ? saved.votes.filter(player => players.includes(player)).slice(0, players.length)
+          : [];
+        const phase = ['lobby', 'voting', 'results'].includes(saved.phase) ? saved.phase : 'lobby';
+        const voterIndex = Number.isInteger(saved.voterIndex) ? Math.min(players.length, Math.max(0, saved.voterIndex)) : 0;
+        const currentPrompt = miniGamePrompts.includes(saved.currentPrompt) ? saved.currentPrompt : '';
+        if (players.length < 2 || phase === 'voting' && votes.length !== voterIndex || phase === 'results' && votes.length !== players.length) {
+          return emptyState;
+        }
+        return {
+          players,
+          scores,
+          usedPrompts: Array.isArray(saved.usedPrompts) ? saved.usedPrompts.filter(prompt => miniGamePrompts.includes(prompt)) : [],
+          currentPrompt,
+          votes,
+          voterIndex,
+          phase
+        };
+      }
+
+      function restoreLocalGame() {
+        if (!profile) return false;
+        let saved;
+        try {
+          const raw = localStorage.getItem(localGameStorageKey());
+          if (!raw) return false;
+          saved = JSON.parse(raw);
+        } catch (error) {
+          console.error('Could not read the saved local game.', error);
+          showToast('Your saved game could not be read from this browser.', 'warning');
+          return false;
+        }
+        if (!saved || saved.version !== 1 || typeof saved.profile !== 'string' ||
+          saved.profile.toLowerCase() !== profile.displayName.toLowerCase() || !Array.isArray(saved.items)) {
+          console.error('The saved local game has an unsupported or invalid format.');
+          showToast('Your saved game could not be restored because its data is invalid.', 'warning');
+          return false;
+        }
+
+        const restoredItems = saved.items.filter(item => typeof item === 'string' && item.trim() && item.length <= 24).slice(0, 100);
+        const validLevels = ['child', 'pleasing', 'dirty'];
+        const validThemes = ['classic', 'road_trip', 'music', 'aeinz_sooth'];
+        const validNumber = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
+        const nextUsedTasks = { child: { truth: [], dare: [] }, pleasing: { truth: [], dare: [] }, dirty: { truth: [], dare: [] }, wildcard: { truth: [], dare: [] } };
+
+        if (saved.usedTasks && typeof saved.usedTasks === 'object') {
+          Object.entries(saved.usedTasks).slice(0, 100).forEach(([key, promptLists]) => {
+            if (!/^[\w:-]{1,160}$/.test(key) || !promptLists || typeof promptLists !== 'object') return;
+            nextUsedTasks[key] = {
+              truth: Array.isArray(promptLists.truth) ? promptLists.truth.filter(task => typeof task === 'string').slice(0, 500) : [],
+              dare: Array.isArray(promptLists.dare) ? promptLists.dare.filter(task => typeof task === 'string').slice(0, 500) : [],
+            };
+          });
+        }
+
+        restoringLocalGame = true;
+        try {
+          items = restoredItems;
+          playerEmojis = {};
+          if (saved.playerEmojis && typeof saved.playerEmojis === 'object') {
+            Object.entries(saved.playerEmojis).forEach(([player, emoji]) => {
+              if (items.includes(player) && typeof emoji === 'string' && emoji.length <= 8) playerEmojis[player] = emoji;
+            });
+          }
+          selectedEmoji = EMOJI_LIST.includes(saved.selectedEmoji) ? saved.selectedEmoji : '😊';
+          currentLevel = validLevels.includes(saved.currentLevel) ? saved.currentLevel : 'child';
+          currentPromptTheme = validThemes.includes(saved.currentPromptTheme) ? saved.currentPromptTheme : 'classic';
+          includeCustomTasks = saved.includeCustomTasks === true;
+          wildcardMode = saved.wildcardMode === true;
+          boundaries = { privacy: !saved.boundaries || saved.boundaries.privacy !== false };
+          spinHistory = Array.isArray(saved.spinHistory)
+            ? saved.spinHistory.filter(entry => entry && typeof entry.player === 'string' && typeof entry.task === 'string' && ['truth', 'dare'].includes(entry.type))
+              .slice(0, 50)
+              .map(entry => ({
+                player: entry.player.slice(0, 24),
+                task: entry.task.slice(0, 1200),
+                type: entry.type,
+                level: typeof entry.level === 'string' ? entry.level.slice(0, 40) : currentLevel,
+                timestamp: typeof entry.timestamp === 'string' ? entry.timestamp.slice(0, 40) : '',
+                date: typeof entry.date === 'string' ? entry.date.slice(0, 40) : '',
+              }))
+            : [];
+          totalSpins = Math.max(totalSpins, validNumber(saved.totalSpins));
+          completedTasks = Math.max(completedTasks, validNumber(saved.completedTasks));
+          streakCount = validNumber(saved.streakCount);
+          achievements = new Set([
+            ...achievements,
+            ...(Array.isArray(saved.achievements) ? saved.achievements.filter(key => Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, key)) : [])
+          ]);
+          usedTasks = nextUsedTasks;
+          miniGameState = restoreMiniGameState(saved.miniGameState);
+          const timerSetting = ['off', '15', '30', '60'].includes(saved.timerSetting)
+            ? saved.timerSetting
+            : [15, 30, 60].includes(saved.timerDuration) ? String(saved.timerDuration) : '30';
+          timerDuration = timerSetting === 'off' ? 30 : Number(timerSetting);
+          timerActive = false;
+          stopTimer();
+          $('timer-duration').value = timerSetting;
+          $('timer-btn').style.background = '';
+
+          soundEnabled = saved.soundEnabled !== false;
+          $('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
+          const volume = Number(saved.musicVolume);
+          if (Number.isFinite(volume) && volume >= 0 && volume <= 1) {
+            $('music-volume').value = String(volume);
+            themeAudio.volume = volume;
+          }
+          if (Number.isInteger(saved.musicTrackIndex) && saved.musicTrackIndex >= 0 && saved.musicTrackIndex < THEME_TRACKS.length) {
+            selectThemeTrack(saved.musicTrackIndex);
+          }
+          themeShuffle = saved.musicShuffle === true;
+          $('music-shuffle').setAttribute('aria-pressed', String(themeShuffle));
+          $('music-shuffle').classList.toggle('bg-amber-300', themeShuffle);
+          $('music-shuffle').classList.toggle('text-black', themeShuffle);
+
+          lastSelectedPlayer = typeof saved.selectedPlayer === 'string' && items.includes(saved.selectedPlayer)
+            ? saved.selectedPlayer
+            : null;
+          const currentTask = saved.currentTask && typeof saved.currentTask.task === 'string' &&
+            ['truth', 'dare'].includes(saved.currentTask.type)
+            ? { task: saved.currentTask.task.slice(0, 1200), type: saved.currentTask.type }
+            : null;
+          const currentTaskMatchesLevel = !wildcardMode || !currentTask ||
+            wildcardTasks[currentLevel][currentTask.type].includes(currentTask.task);
+
+          applyTheme(currentLevel);
+          syncLevelButtons();
+          syncPromptControls();
+          syncWildcardButton();
+          syncBoundaryControl();
+          renderChips();
+          updateUI();
+          if (lastSelectedPlayer && currentTask && currentTaskMatchesLevel) {
+            displayTask(currentTask, lastSelectedPlayer, true);
+          } else {
+            lastSelectedPlayer = null;
+            resultArea.classList.add('hidden');
+            if (currentTask && !currentTaskMatchesLevel) {
+              showToast('An older Wildcard prompt did not match this level and was skipped.', 'info');
+            }
+          }
+          queueProgressSave();
+        } catch (error) {
+          console.error('Could not restore the saved local game.', error);
+          showToast('Your saved game could not be restored. Your account progress is still safe.', 'warning');
+          return false;
+        } finally {
+          restoringLocalGame = false;
+        }
+
+        showToast('Your previous local game was restored. 🎮', 'success');
+        return true;
+      }
+
       function setProfile(next) {
         profile = next;
         $('account-name').textContent = next.displayName;
@@ -3116,6 +3679,7 @@
       }
 
       window.addEventListener('beforeunload', () => {
+        saveLocalGame();
         if (saveTimer) flushProgressSave(true);
       });
 
@@ -3131,7 +3695,7 @@
         el.classList.remove('hidden');
       }
 
-      function setAuthMode(mode) {
+      function setAuthMode(mode, focusInput = true) {
         authMode = mode;
         const fields = {
           login: ['email', 'password'],
@@ -3142,15 +3706,21 @@
         document.querySelectorAll('[data-auth-field]').forEach(el => {
           el.classList.toggle('hidden', !fields.includes(el.dataset.authField));
         });
-        document.querySelectorAll('.auth-tab').forEach(tab => {
+        document.querySelectorAll('[data-auth-tab]').forEach(tab => {
           tab.classList.toggle('active', tab.dataset.authTab === mode);
+          tab.setAttribute('aria-selected', String(tab.dataset.authTab === mode));
+          tab.tabIndex = tab.dataset.authTab === mode ? 0 : -1;
         });
         $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'reset');
         $('auth-forgot').classList.toggle('hidden', mode !== 'login');
-        $('auth-back').classList.toggle('hidden', mode !== 'forgot');
+        $('auth-back').classList.toggle('hidden', mode !== 'forgot' && mode !== 'reset');
+        $('auth-display-name').required = mode === 'signup';
+        $('auth-email').required = mode !== 'reset';
+        $('auth-password').required = mode === 'login' || mode === 'signup' || mode === 'reset';
         $('auth-password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
         $('auth-password').type = 'password';
         $('auth-password-toggle').textContent = 'Show';
+        $('auth-password-toggle').setAttribute('aria-label', 'Show password');
         $('auth-password-toggle').setAttribute('aria-pressed', 'false');
         $('auth-submit').textContent = {
           login: 'Log in',
@@ -3159,18 +3729,23 @@
           reset: 'Save new password',
         }[mode];
         $('auth-subtitle').textContent = {
-          login: 'Log in first, then choose an Offline or Online session.',
+          login: 'Log in to continue to your saved game or play with friends.',
           signup: 'Create an account to start offline play, save progress, and join friends online.',
           forgot: "Enter your email and we'll send you a link to reset your password.",
           reset: 'Choose a new password for your account.',
         }[mode];
+        $('auth-form').setAttribute('aria-labelledby', mode === 'signup' ? 'auth-signup-tab' : 'auth-login-tab');
         setAuthMessage(null, '');
+        if (focusInput) {
+          const firstField = document.querySelector(`[data-auth-field="${fields[0]}"] input`);
+          if (firstField) requestAnimationFrame(() => firstField.focus({ preventScroll: true }));
+        }
       }
 
       function showAuth(mode = 'login', message = null) {
         sessionMode = null;
         offlineMode = false;
-        setAuthMode(mode);
+        setAuthMode(mode, false);
         if (message) setAuthMessage(message.kind, message.text);
         $('account-bar').classList.add('hidden');
         $('offline-bar').classList.add('hidden');
@@ -3183,6 +3758,7 @@
           showAuth('login');
           return;
         }
+        if (sessionMode === 'offline') saveLocalGame();
         sessionMode = null;
         offlineMode = false;
         $('offline-bar').classList.add('hidden');
@@ -3205,7 +3781,8 @@
         offlineMode = mode === 'offline';
         $('session-mode-modal').classList.add('hidden');
         if (offlineMode) {
-          $('offline-session-label').textContent = `Offline session · signed in as ${profile.displayName} · progress saves to your account`;
+          restoreLocalGame();
+          $('offline-session-label').textContent = `Offline session · signed in as ${profile.displayName} · game saves in this browser, stats to your account`;
         } else {
           $('offline-bar').classList.add('hidden');
         }
@@ -3218,23 +3795,36 @@
         }
       }
 
-      function friendlyAuthError(error) {
+      function friendlyAuthError(error, mode = authMode) {
         if (identity && error instanceof identity.MissingIdentityError) {
           return 'Accounts are not available on this site right now.';
         }
         const status = error && error.status;
         const msg = (error && error.message) || '';
         if (/not confirmed/i.test(msg)) return 'Please confirm your email first. Check your inbox for the confirmation link.';
-        if (status === 401 || /invalid/i.test(msg) && authMode === 'login') return 'Invalid email or password.';
+        if (status === 401 || /invalid/i.test(msg) && mode === 'login') return 'Invalid email or password.';
         if (status === 403) return 'New sign-ups are currently disabled.';
         if (status === 422) return msg || 'Check your email and password (at least 6 characters).';
         return msg || 'Something went wrong. Please try again.';
       }
 
-      document.querySelectorAll('.auth-tab').forEach(tab => {
+      document.querySelectorAll('[data-auth-tab]').forEach(tab => {
         tab.addEventListener('click', () => {
           playClickSound();
-          setAuthMode(tab.dataset.authTab);
+          setAuthMode(tab.dataset.authTab, false);
+        });
+        tab.addEventListener('keydown', event => {
+          const tabs = Array.from(document.querySelectorAll('[data-auth-tab]'));
+          const currentIndex = tabs.indexOf(tab);
+          let nextIndex = currentIndex;
+          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+          else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          else if (event.key === 'Home') nextIndex = 0;
+          else if (event.key === 'End') nextIndex = tabs.length - 1;
+          else return;
+          event.preventDefault();
+          setAuthMode(tabs[nextIndex].dataset.authTab, false);
+          tabs[nextIndex].focus();
         });
       });
       $('auth-forgot').addEventListener('click', () => setAuthMode('forgot'));
@@ -3244,6 +3834,7 @@
         const isVisible = password.type === 'password';
         password.type = isVisible ? 'text' : 'password';
         $('auth-password-toggle').textContent = isVisible ? 'Hide' : 'Show';
+        $('auth-password-toggle').setAttribute('aria-label', `${isVisible ? 'Hide' : 'Show'} password`);
         $('auth-password-toggle').setAttribute('aria-pressed', String(isVisible));
       });
 
@@ -3261,26 +3852,50 @@
           setAuthMessage('error', 'Still connecting. Please try again in a moment.');
           return;
         }
+        const mode = authMode;
         const emailInput = $('auth-email');
         const email = emailInput.value.trim();
         const password = $('auth-password').value;
         const displayName = $('auth-display-name').value.trim();
 
-        if (authMode !== 'reset' && !email) return setAuthMessage('error', 'Enter your email address.');
-        if (authMode !== 'reset' && !emailInput.validity.valid) return setAuthMessage('error', 'Enter a valid email address.');
-        if ((authMode === 'login' || authMode === 'signup' || authMode === 'reset') && password.length < 6) {
-          return setAuthMessage('error', 'Password must be at least 6 characters.');
+        if (mode !== 'reset' && !email) {
+          setAuthMessage('error', 'Enter your email address.');
+          emailInput.focus();
+          return;
         }
-        if (authMode === 'signup' && !displayName) return setAuthMessage('error', 'Choose a display name so friends can find you.');
+        if (mode !== 'reset' && !emailInput.validity.valid) {
+          setAuthMessage('error', 'Enter a valid email address.');
+          emailInput.focus();
+          return;
+        }
+        if ((mode === 'login' || mode === 'signup' || mode === 'reset') && password.length < 6) {
+          setAuthMessage('error', 'Password must be at least 6 characters.');
+          $('auth-password').focus();
+          return;
+        }
+        if (mode === 'signup' && !displayName) {
+          setAuthMessage('error', 'Choose a display name so friends can find you.');
+          $('auth-display-name').focus();
+          return;
+        }
 
         const submit = $('auth-submit');
         submit.disabled = true;
+        const submitLabels = {
+          login: 'Signing in...',
+          signup: 'Creating account...',
+          forgot: 'Sending reset link...',
+          reset: 'Updating password...',
+        };
+        submit.textContent = submitLabels[mode];
+        const authNavigation = [...document.querySelectorAll('[data-auth-tab]'), $('auth-forgot'), $('auth-back')];
+        authNavigation.forEach(button => { button.disabled = true; });
         setAuthMessage(null, '');
         try {
-          if (authMode === 'login') {
+          if (mode === 'login') {
             await identity.login(email, password);
             await enterApp();
-          } else if (authMode === 'signup') {
+          } else if (mode === 'signup') {
             await identity.signup(email, password, { full_name: displayName.slice(0, 24) });
             const current = await identity.getUser();
             if (current) {
@@ -3290,24 +3905,32 @@
               $('auth-email').value = email;
               setAuthMessage('info', 'Account created! Check your email for a confirmation link, then log in here.');
             }
-          } else if (authMode === 'forgot') {
+          } else if (mode === 'forgot') {
             await identity.requestPasswordRecovery(email);
             setAuthMessage('info', 'If that email has an account, a reset link is on its way.');
-          } else if (authMode === 'reset') {
+          } else if (mode === 'reset') {
             await identity.updateUser({ password });
             showToast('Password updated! 🔐', 'success');
             await enterApp();
           }
         } catch (error) {
           console.error(error);
-          setAuthMessage('error', friendlyAuthError(error));
+          setAuthMessage('error', friendlyAuthError(error, mode));
         } finally {
           submit.disabled = false;
+          submit.textContent = {
+            login: 'Log in',
+            signup: 'Create account',
+            forgot: 'Send reset link',
+            reset: 'Save new password',
+          }[authMode];
+          authNavigation.forEach(button => { button.disabled = false; });
         }
       });
 
       $('logout-btn').addEventListener('click', async () => {
         playClickSound();
+        saveLocalGame();
         await flushProgressSave();
         try { await identity.logout(); } catch (err) { console.error(err); }
         forgetRoom();
@@ -4068,6 +4691,7 @@
           : 'Include your account-saved prompts in this session.';
         themeSelect.title = wildcardMode ? 'Prompt packs are paused while Wild mode is active.' : 'Mix this prompt pack into the selected level.';
         toggle.style.background = enabled ? 'rgba(16, 185, 129, 0.28)' : '';
+        queueLocalGameSave();
       }
 
       function updateOnlineBanner() {
@@ -4272,6 +4896,11 @@
         roomChatMessages.innerHTML = '';
         if (!onlineRoom) {
           await flushProgressSave();
+          saveLocalGame();
+          const currentEntry = !resultArea.classList.contains('hidden') && lastSelectedPlayer &&
+            spinHistory[0] && spinHistory[0].player === lastSelectedPlayer
+            ? spinHistory[0]
+            : null;
           localSnapshot = {
             items: items.slice(),
             playerEmojis: { ...playerEmojis },
@@ -4281,6 +4910,14 @@
             wildcardMode,
             boundaries: { ...boundaries },
             spinHistory: spinHistory.slice(),
+            totalSpins,
+            completedTasks,
+            streakCount,
+            achievements: [...achievements],
+            usedTasks: JSON.parse(JSON.stringify(usedTasks)),
+            miniGameState: JSON.parse(JSON.stringify(miniGameState)),
+            lastSelectedPlayer: currentEntry ? lastSelectedPlayer : null,
+            currentTask: currentEntry ? { task: currentEntry.task, type: currentEntry.type } : null,
           };
         }
         clearTimeout(roomPollTimer);
@@ -4326,7 +4963,18 @@
           wildcardMode = localSnapshot.wildcardMode;
           boundaries = localSnapshot.boundaries;
           spinHistory = localSnapshot.spinHistory;
+          totalSpins = localSnapshot.totalSpins;
+          completedTasks = localSnapshot.completedTasks;
+          streakCount = localSnapshot.streakCount;
+          achievements = new Set(localSnapshot.achievements);
+          usedTasks = localSnapshot.usedTasks;
+          miniGameState = localSnapshot.miniGameState || { players: [], scores: {}, usedPrompts: [], currentPrompt: '', votes: [], voterIndex: 0, phase: 'lobby' };
+          lastSelectedPlayer = localSnapshot.lastSelectedPlayer;
+          const currentTask = localSnapshot.currentTask;
           localSnapshot = null;
+          if (lastSelectedPlayer && currentTask) {
+            displayTask(currentTask, lastSelectedPlayer, true);
+          }
         }
         applyTheme(currentLevel);
         syncLevelButtons();

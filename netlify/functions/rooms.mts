@@ -10,7 +10,7 @@ import {
   type RoomPlayer,
   type RoomState,
 } from "../../lib/rooms.js";
-import { isPrivacySensitiveTask, type TaskLevel, type TaskTheme } from "../../lib/tasks.js";
+import { isPrivacySensitiveTask, wildcardTasks, type TaskLevel, type TaskTheme } from "../../lib/tasks.js";
 
 function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -18,6 +18,14 @@ function json(data: unknown, status = 200) {
 
 const VALID_LEVELS = new Set(["child", "pleasing", "dirty"]);
 const VALID_THEMES = new Set(["classic", "road_trip", "music", "aeinz_sooth"]);
+
+function clearIncompatibleWildcardTask(state: RoomState) {
+  const task = state.currentTask;
+  if (!state.wildcardMode || !task || wildcardTasks[state.level]?.[task.type]?.includes(task.task)) return;
+  state.lastSelectedPlayer = null;
+  state.currentTask = null;
+  state.pendingDouble = null;
+}
 
 export default async (request: Request, context: { params: Record<string, string> }) => {
   const user = await getUser();
@@ -34,12 +42,15 @@ export default async (request: Request, context: { params: Record<string, string
   if (!me) return json({ error: "You are not part of this game." }, 403);
 
   if (request.method === "GET") {
+    const state = { ...(room.state as RoomState) };
+    state.level = VALID_LEVELS.has(state.level) ? state.level : "child";
+    clearIncompatibleWildcardTask(state);
     return json({
       room: {
         id: room.id,
         status: room.status,
         players,
-        state: room.state,
+        state,
         you: me.displayName,
         isHost: room.createdBy === user.id,
       },
@@ -56,9 +67,11 @@ export default async (request: Request, context: { params: Record<string, string
   }
 
   const state = { ...(room.state as RoomState) };
+  state.level = VALID_LEVELS.has(state.level) ? state.level : "child";
   state.boundaries = state.boundaries ?? { privacy: true };
   state.theme = state.theme && VALID_THEMES.has(state.theme) ? state.theme : "classic";
   state.includeCustomTasks = Boolean(state.includeCustomTasks);
+  clearIncompatibleWildcardTask(state);
   const type = body.type;
 
   if (type === "spin") {

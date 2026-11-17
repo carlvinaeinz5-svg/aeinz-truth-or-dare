@@ -1,4 +1,5 @@
-import { desc } from "drizzle-orm";
+import { getUser } from "@netlify/identity";
+import { desc, ne } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { communityTasks } from "../../db/schema.js";
 
@@ -18,6 +19,7 @@ export default async (request: Request) => {
     const tasks = await db
       .select()
       .from(communityTasks)
+      .where(ne(communityTasks.level, "child"))
       .orderBy(desc(communityTasks.createdAt))
       .limit(300);
 
@@ -25,6 +27,8 @@ export default async (request: Request) => {
   }
 
   if (request.method === "POST") {
+    if (!(await getUser())) return json({ error: "Sign in to share a community task." }, 401);
+
     let body: Record<string, unknown>;
 
     try {
@@ -43,6 +47,9 @@ export default async (request: Request) => {
 
     if (!VALID_TYPES.has(type) || !VALID_LEVELS.has(level)) {
       return json({ error: "Choose a valid task type and game level." }, 400);
+    }
+    if (level === "child") {
+      return json({ error: "Community-submitted tasks are not available in Child's Play." }, 400);
     }
 
     const [task] = await db

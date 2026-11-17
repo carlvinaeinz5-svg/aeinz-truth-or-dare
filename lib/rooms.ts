@@ -72,11 +72,11 @@ export async function pickTask(state: RoomState, ownerUserId?: string): Promise<
   const type: TaskType = Math.random() < 0.5 ? "truth" : "dare";
   const theme = state.theme ?? "classic";
   const includeCustomTasks = state.includeCustomTasks ?? false;
-  const poolKey = state.wildcardMode ? "wildcard" : `${state.level}:${theme}:${includeCustomTasks}`;
-  let pool: string[] = state.wildcardMode ? wildcardTasks[type] : tasks[state.level][type];
+  const poolKey = state.wildcardMode ? `wildcard:${state.level}` : `${state.level}:${theme}:${includeCustomTasks}`;
+  let pool: string[] = state.wildcardMode ? wildcardTasks[state.level][type] : tasks[state.level][type];
 
   if (!state.wildcardMode) {
-    const community = await loadCommunityTasksFor(state.level, type);
+    const community = state.level === "child" ? [] : await loadCommunityTasksFor(state.level, type);
     pool = [
       ...pool,
       ...(theme === "classic" ? [] : themedTasks[theme][state.level][type]),
