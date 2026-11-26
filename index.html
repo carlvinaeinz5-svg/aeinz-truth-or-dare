@@ -682,6 +682,13 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
+    .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+
     /* Achievement glow */
     #achievement-popup {
       animation: achievementGlow 0.5s ease-out;
@@ -784,6 +791,8 @@
         </button>
         <button id="change-session-btn" type="button" class="frost-panel rounded-full px-3 py-2 text-sm font-bold hover:bg-white/20 transition">🔄 Change session</button>
         <button id="tutorial-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Show tutorial">❓</button>
+        <button id="about-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="About AEINZ">About</button>
+        <button id="settings-btn" class="frost-panel rounded-full px-3 py-2 text-sm hover:bg-white/20 transition" title="Open settings">⚙ Settings</button>
         <button id="logout-btn" class="frost-panel rounded-full px-3 sm:px-4 py-2 text-sm hover:bg-white/20 transition">Log out</button>
       </div>
     </div>
@@ -1413,7 +1422,7 @@
 
       <div class="flex justify-between items-center mt-4 text-sm">
         <button type="button" id="auth-forgot" class="text-white/70 hover:text-white underline underline-offset-2">Forgot password?</button>
-        <button type="button" id="auth-back" class="hidden text-white/70 hover:text-white underline underline-offset-2">Back to log in</button>
+        <div class="flex items-center gap-3"><button type="button" id="auth-about-btn" class="text-white/70 hover:text-white underline underline-offset-2">About AEINZ</button><button type="button" id="auth-back" class="hidden text-white/70 hover:text-white underline underline-offset-2">Back to log in</button></div>
       </div>
     </div>
   </div>
@@ -1440,17 +1449,55 @@
 
   <!-- Tutorial Modal -->
   <div id="tutorial-modal" class="modal-overlay hidden" data-locked="true">
-    <div class="modal-content text-center" style="max-width: 480px;">
+    <div class="modal-content text-center" style="max-width: 540px;">
       <div class="flex justify-end">
         <button type="button" id="tutorial-skip" class="text-sm text-white/60 hover:text-white">Skip tour</button>
+      </div>
+      <div class="flex items-center justify-between gap-3 mb-2 text-xs uppercase tracking-widest text-white/55 font-black">
+        <span>Quick start guide</span><span id="tutorial-progress"></span>
       </div>
       <div id="tutorial-icon" class="text-6xl my-2"></div>
       <h3 id="tutorial-title" class="text-2xl sm:text-3xl font-black text-amber-300 mb-3"></h3>
       <p id="tutorial-body" class="text-white text-base leading-relaxed mb-6 min-h-[6rem]"></p>
+      <div id="tutorial-tip" class="rounded-2xl bg-amber-400/10 border border-amber-300/25 p-3 mb-5 text-left text-sm text-amber-100"></div>
       <div id="tutorial-dots" class="flex justify-center gap-2 mb-5"></div>
       <div class="flex justify-between gap-3">
         <button type="button" id="tutorial-prev" class="rounded-full px-5 py-2.5 font-bold bg-white/10 border border-white/30 hover:bg-white/20 transition text-white disabled:opacity-30">Back</button>
         <button type="button" id="tutorial-next" class="flex-1 rounded-full px-5 py-2.5 font-black bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:scale-[1.02] transition">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- About hub -->
+  <div id="about-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="flex justify-between items-start gap-4 mb-5">
+        <div><p class="text-xs uppercase tracking-widest text-amber-200 font-black">The AEINZ playbook</p><h3 id="about-title" class="text-2xl sm:text-3xl font-black text-white">About AEINZ</h3></div>
+        <button id="close-about" type="button" class="text-3xl leading-none text-white/70 hover:text-white" aria-label="Close about">&times;</button>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-3 mb-5">
+        <div class="rounded-2xl bg-amber-400/10 border border-amber-300/25 p-4"><p class="text-2xl mb-2">🎯</p><p class="font-black">Play your way</p><p class="text-sm text-white/65 mt-1">Choose a level, prompt pack, timer, wildcard mode, and your own boundaries.</p></div>
+        <div class="rounded-2xl bg-emerald-400/10 border border-emerald-300/25 p-4"><p class="text-2xl mb-2">🌐</p><p class="font-black">Bring the group</p><p class="text-sm text-white/65 mt-1">Play together on one device or invite friends into an online room.</p></div>
+        <div class="rounded-2xl bg-purple-400/10 border border-purple-300/25 p-4"><p class="text-2xl mb-2">🏆</p><p class="font-black">Make memories</p><p class="text-sm text-white/65 mt-1">Build streaks, unlock achievements, and keep the best rounds moving.</p></div>
+      </div>
+      <div class="rounded-2xl bg-white/5 border border-white/15 p-4 mb-4">
+        <h4 class="font-black text-amber-200">Meet the developer</h4>
+        <p class="text-sm text-white/75 mt-2 leading-relaxed">AEINZ is designed and built by <strong class="text-white">Aeinz</strong> (C.AEINZ.ORG.UG). The game is made for lively groups, easy consent, and playful moments wherever your friends are.</p>
+        <p class="text-xs text-white/50 mt-2">For support or collaboration, use the contact details published by C.AEINZ.ORG.UG. We do not display private location or personal contact information in the game.</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs text-white/60"><span class="rounded-full bg-white/10 px-3 py-1.5">Built for friends</span><span class="rounded-full bg-white/10 px-3 py-1.5">Consent first</span><span class="rounded-full bg-white/10 px-3 py-1.5">© 2026 C.AEINZ.ORG.UG</span></div>
+    </div>
+  </div>
+
+  <!-- Settings hub -->
+  <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="flex justify-between items-start gap-4 mb-5"><div><p class="text-xs uppercase tracking-widest text-amber-200 font-black">Personalise your game</p><h3 id="settings-title" class="text-2xl sm:text-3xl font-black text-white">Settings</h3></div><button id="close-settings" type="button" class="text-3xl leading-none text-white/70 hover:text-white" aria-label="Close settings">&times;</button></div>
+      <div class="space-y-3">
+        <section class="rounded-2xl bg-white/5 border border-white/15 p-4"><h4 class="font-black text-amber-200 mb-3">Account</h4><form id="settings-account-form" class="flex flex-col sm:flex-row gap-2"><label class="sr-only" for="settings-display-name">Display name</label><input id="settings-display-name" maxlength="24" class="flex-1 rounded-full px-4 py-2.5 bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-amber-400" placeholder="Display name"><button class="rounded-full px-4 py-2.5 font-black bg-amber-400 text-black" type="submit">Save name</button></form><p id="settings-account-status" class="text-xs text-white/60 mt-2">Your display name is used for online invites.</p></section>
+        <section class="rounded-2xl bg-white/5 border border-white/15 p-4"><h4 class="font-black text-amber-200 mb-3">Notifications</h4><label class="flex items-center justify-between gap-4 py-2"><span><span class="block font-bold">Invite notifications</span><span class="block text-xs text-white/60">Show a badge when a friend invites you.</span></span><input id="settings-invites" type="checkbox" class="h-5 w-5 accent-amber-400"></label><label class="flex items-center justify-between gap-4 py-2"><span><span class="block font-bold">Game nudges</span><span class="block text-xs text-white/60">Allow helpful reminders while a round is waiting.</span></span><input id="settings-nudges" type="checkbox" class="h-5 w-5 accent-amber-400"></label></section>
+        <section class="rounded-2xl bg-white/5 border border-white/15 p-4"><h4 class="font-black text-amber-200 mb-3">Play & accessibility</h4><label class="flex items-center justify-between gap-4 py-2"><span><span class="block font-bold">Sound effects</span><span class="block text-xs text-white/60">Wheel ticks, wins, and button sounds.</span></span><input id="settings-sound" type="checkbox" class="h-5 w-5 accent-amber-400"></label><label class="flex items-center justify-between gap-4 py-2"><span><span class="block font-bold">Reduced motion</span><span class="block text-xs text-white/60">Tone down wheel, particle, and celebration animations.</span></span><input id="settings-reduced-motion" type="checkbox" class="h-5 w-5 accent-amber-400"></label><label class="flex items-center justify-between gap-4 py-2"><span><span class="block font-bold">Privacy prompts</span><span class="block text-xs text-white/60">Keep phone and private-message prompts filtered.</span></span><input id="settings-privacy" type="checkbox" class="h-5 w-5 accent-amber-400"></label></section>
+        <section class="rounded-2xl bg-red-500/10 border border-red-400/25 p-4"><h4 class="font-black text-red-200 mb-2">Reset</h4><p class="text-xs text-white/65 mb-3">Restart the tutorial or clear this browser's saved local round. Your account achievements and custom deck stay safe.</p><div class="flex flex-wrap gap-2"><button id="settings-replay-tutorial" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white/10 border border-white/20">Replay tutorial</button><button id="settings-clear-local" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-red-500/20 border border-red-400/30 text-red-100">Clear local round</button></div></section>
       </div>
     </div>
   </div>
@@ -4061,13 +4108,14 @@
 
       // ---- Tutorial ----
       const TUTORIAL_STEPS = [
-        { icon: '🎪', title: 'Welcome to AEINZ!', body: 'Spin the wheel, find out who\'s up, and take on a truth or a dare. Here\'s a quick tour.' },
-        { icon: '👥', title: 'Add your players', body: 'Type names in the player box and tap Add. Pick an emoji for each one. You need at least 2 players to spin.' },
-        { icon: '🎯', title: 'Spin the wheel', body: 'Tap SPIN (or press Space). The wheel picks a player and gives them a random truth or dare.' },
-        { icon: '🌶️', title: 'Pick your level', body: 'Child\'s Play is family-friendly, Pleasing is a bit bolder, and Dirty & Flirty is for adults (18+). Wildcard mixes it up.' },
-        { icon: '🔥', title: 'Keep it comfortable', body: 'Tap Done when a task is complete, Pass for another prompt without penalty, or set group boundaries before playing.' },
-        { icon: '🌐', title: 'Play online', body: 'Invite friends by display name, then use room chat for text or short voice notes while you play together online.' },
-        { icon: '🏆', title: 'Your progress is saved', body: 'Spins, completed tasks, streaks, and achievements are saved to your account, so you can pick up on any device. Have fun!' },
+        { icon: '🎪', title: 'Welcome to AEINZ!', body: 'AEINZ turns a group of friends into a game show. Take turns, cheer loudly, and let the wheel decide who is up next.', tip: 'Best first round: keep the level on Child\'s Play, add three or more players, and start with a silly prompt.' },
+        { icon: '👥', title: 'Build your table', body: 'Add every player by name, then choose an emoji so the wheel feels personal. You need at least two players to spin.', tip: 'Use nicknames everyone recognises. You can shuffle the list when you want a fresh order.' },
+        { icon: '🎯', title: 'Spin, then commit', body: 'Tap SPIN or press Space. The wheel chooses a player and deals a truth or dare. Mark it Done to build your streak.', tip: 'The person selected gets the spotlight, but the whole group should help make the challenge fun.' },
+        { icon: '🌶️', title: 'Set the vibe', body: 'Child\'s Play is family-friendly, Pleasing is bolder, and Dirty is for adults 18+. Try themed prompt packs or Wildcard for surprises.', tip: 'Change the level between rounds, not mid-prompt, so everyone knows what kind of energy is coming.' },
+        { icon: '🛡️', title: 'Consent is part of the game', body: 'Set boundaries before you start. Anyone can pass without pressure; use a new prompt or take a breather when something is not comfortable.', tip: 'A great host checks in: “Want another prompt, a lighter level, or a team version?”' },
+        { icon: '🎮', title: 'Add variety', body: 'Use Double for a bonus challenge, Mini-games for a change of pace, Music for atmosphere, and your private deck for prompts made by your group.', tip: 'Every five spins unlocks a bonus question. Save the funniest moments for your group chat.' },
+        { icon: '🌐', title: 'Play together anywhere', body: 'Create an online room and invite friends by display name. Everyone sees the same game, with chat and voice notes available in the room.', tip: 'If the connection drops, keep playing locally—the room reconnects when the network returns.' },
+        { icon: '🏆', title: 'Make it your tradition', body: 'Your spins, completed tasks, streaks, and achievements save to your account. Return to the same game on another device and keep the momentum going.', tip: 'Open Settings whenever you want to replay this guide, update your preferences, or manage your display name.' },
       ];
       let tutorialStep = 0;
 
@@ -4076,6 +4124,8 @@
         $('tutorial-icon').textContent = step.icon;
         $('tutorial-title').textContent = step.title;
         $('tutorial-body').textContent = step.body;
+        $('tutorial-tip').innerHTML = `<strong>Host tip:</strong> ${escapeHtml(step.tip)}`;
+        $('tutorial-progress').textContent = `${tutorialStep + 1} / ${TUTORIAL_STEPS.length}`;
         $('tutorial-prev').disabled = tutorialStep === 0;
         $('tutorial-next').textContent = tutorialStep === TUTORIAL_STEPS.length - 1 ? "Let's play! 🎉" : 'Next';
         $('tutorial-dots').innerHTML = TUTORIAL_STEPS.map((_, i) => `<span class="tutorial-dot${i === tutorialStep ? ' active' : ''}"></span>`).join('');
@@ -4124,6 +4174,65 @@
       $('tutorial-btn').addEventListener('click', () => {
         playClickSound();
         openTutorial();
+      });
+
+      // ---- About & settings ----
+      const SETTINGS_KEY = 'aeinz-settings-v1';
+      function readSettings() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+          return { invites: saved.invites !== false, nudges: saved.nudges !== false, reducedMotion: saved.reducedMotion === true };
+        } catch { return { invites: true, nudges: true, reducedMotion: false }; }
+      }
+      function writeSettings(next) {
+        try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); } catch (error) { console.error('Could not save settings', error); }
+        document.documentElement.classList.toggle('reduce-motion', next.reducedMotion);
+      }
+      document.documentElement.classList.toggle('reduce-motion', readSettings().reducedMotion);
+      function openSettings() {
+        if (!profile) return showAuth('login');
+        const saved = readSettings();
+        $('settings-display-name').value = profile.displayName;
+        $('settings-invites').checked = saved.invites;
+        $('settings-nudges').checked = saved.nudges;
+        $('settings-sound').checked = soundEnabled;
+        $('settings-reduced-motion').checked = saved.reducedMotion;
+        $('settings-privacy').checked = boundaries.privacy;
+        $('settings-account-status').textContent = 'Your display name is used for online invites.';
+        $('settings-modal').classList.remove('hidden');
+      }
+      function savePreferenceSettings() {
+        const next = { invites: $('settings-invites').checked, nudges: $('settings-nudges').checked, reducedMotion: $('settings-reduced-motion').checked };
+        writeSettings(next);
+        soundEnabled = $('settings-sound').checked;
+        $('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
+        boundaries.privacy = $('settings-privacy').checked;
+        syncBoundaryControl();
+        queueLocalGameSave();
+      }
+      $('about-btn').addEventListener('click', () => { playClickSound(); $('about-modal').classList.remove('hidden'); });
+      $('auth-about-btn').addEventListener('click', () => $('about-modal').classList.remove('hidden'));
+      $('close-about').addEventListener('click', () => $('about-modal').classList.add('hidden'));
+      $('settings-btn').addEventListener('click', () => { playClickSound(); openSettings(); });
+      $('close-settings').addEventListener('click', () => $('settings-modal').classList.add('hidden'));
+      ['settings-invites', 'settings-nudges', 'settings-sound', 'settings-reduced-motion', 'settings-privacy'].forEach(id => $(id).addEventListener('change', savePreferenceSettings));
+      $('settings-account-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const name = $('settings-display-name').value.trim();
+        if (!name || name === profile.displayName) return;
+        try {
+          const data = await api('/api/profile', { method: 'PATCH', body: JSON.stringify({ displayName: name }) });
+          setProfile({ ...profile, displayName: data.profile.displayName });
+          $('settings-account-status').textContent = 'Display name saved. Friends can now find you with it.';
+          showToast('Display name updated.', 'success');
+        } catch (error) { $('settings-account-status').textContent = error.message; }
+      });
+      $('settings-replay-tutorial').addEventListener('click', () => { $('settings-modal').classList.add('hidden'); openTutorial(); });
+      $('settings-clear-local').addEventListener('click', () => {
+        if (!confirm('Clear this browser\'s saved local round? Account progress and your prompt deck will stay safe.')) return;
+        if (profile) localStorage.removeItem(localGameStorageKey());
+        showToast('Saved local round cleared. Start a fresh table when you are ready.', 'success');
+        $('settings-modal').classList.add('hidden');
       });
 
       // ---- Invites panel ----
